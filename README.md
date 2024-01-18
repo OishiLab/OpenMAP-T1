@@ -21,7 +21,7 @@ Submitted for publication in the **2024 ISMRM Annual Meeting** and **Imaging Neu
 ## Version
 | Version | Release Date  | Download                                  |
 |---------|---------------|-------------------------------------------|
-| 2.0.0   |               |                                           |
+| 2.0.0   | January  2024 | https://github.com/OishiLab/OpenMAP-T1-V2 |
 | 1.0.0   | December 2023 | https://github.com/OishiLab/OpenMAP-T1-V1 |
 
 ## Supplementary information
