@@ -1,7 +1,7 @@
 # OpenMAP-T1
 ![Figure3](https://github.com/OishiLab/OpenMAP-T1/assets/64403395/2ca86ddd-fe18-4ca5-b359-904cba17e44b)
 
-[![](http://img.shields.io/badge/DOI-00.0000/00000-B31B1B.svg)](https://www.biorxiv.org/)
+[![](http://img.shields.io/badge/DOI-10.1101/2024.01.18.24301494-B31B1B.svg)](https://www.medrxiv.org/content/10.1101/2024.01.18.24301494v1)
 [![](https://img.shields.io/badge/under%20review-ISMRM2024-%2300629B%09)](https://www.ismrm.org/)
 [![IEEE Xplore](https://img.shields.io/badge/under%20review-Imaging%20Neuroscience-%2300629B%09)](https://janeway.imaging-neuroscience.org/)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1fmfkxxZjChExnl5cHITYkNYgTu3MZ7Ql#scrollTo=xwZxyL5ewVNF)
