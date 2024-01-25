@@ -1,6 +1,6 @@
-![C](https://github.com/OishiLab/OpenMAP-T1/assets/64403395/e6f8ec74-9441-4d03-995f-a641a275d9e8)
+![OpenMAP_Logo_with_name](https://github.com/OishiLab/OpenMAP-T1/assets/64403395/9ce68146-eeb7-4ce0-bd49-73f1c7ded4d8)
 
-# <img width="30" alt="SCR-20230502-nedr" src="https://github.com/OishiLab/OpenMAP-T1/assets/64403395/2f7a57cc-6f21-49bb-a495-0cb7b4e8b7c3"> OpenMAP-T1
+# OpenMAP-T1
 ![Figure3](https://github.com/OishiLab/OpenMAP-T1/assets/64403395/4b929f3c-3114-4f98-ad32-f355c939754e)
 
 [![](http://img.shields.io/badge/medRxiv-10.1101/2024.01.18.24301494-B31B1B.svg)](https://www.medrxiv.org/content/10.1101/2024.01.18.24301494v1)
