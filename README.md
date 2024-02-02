@@ -34,7 +34,7 @@ The OpenMAP-T1 parcellate the entire brain into five hierarchical structural lev
 ## Citation
 ```
 @article {Nishimaki2024.01.18.24301494,
-	author = {Kei Nishimaki and Kengo Onda and Kunpei Ikuta and Yuto Uchida and Susumu Mori and Hitoshi Iyatomi and Kenichi Oishi},
+	author = {Kei Nishimaki and Kengo Onda and Kumpei Ikuta and Yuto Uchida and Susumu Mori and Hitoshi Iyatomi and Kenichi Oishi},
 	title = {OpenMAP-T1: A Rapid Deep Learning Approach to Parcellate 280 Anatomical Regions to Cover the Whole Brain},
 	elocation-id = {2024.01.18.24301494},
 	year = {2024},
