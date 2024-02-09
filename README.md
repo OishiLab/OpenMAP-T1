@@ -21,10 +21,10 @@ Paper: https://www.medrxiv.org/content/10.1101/2024.01.18.24301494v1<br>
 Submitted for publication in the **Imaging Neuroscience**<br>
 
 ## Version
-| Version | Release Date  | Download                                  |
+| Version | Release Date  | Link                                      |
 |---------|---------------|-------------------------------------------|
-| 2.0.0   | January  2024 | https://github.com/OishiLab/OpenMAP-T1-V2 |
-| 1.0.0   | December 2023 | https://github.com/OishiLab/OpenMAP-T1-V1 |
+| 2.0.0   | January  2024 | https://github.com/OishiLab/OpenMAP-T1/tree/v2.0.0 |
+| 1.0.0   | December 2023 | https://github.com/OishiLab/OpenMAP-T1/tree/v1.0.0 |
 
 ## Supplementary information
 ![supplementary_level](https://github.com/OishiLab/OpenMAP-T1/assets/64403395/0fcb0fb1-af15-4e6e-83b9-d8f64e27307c)
