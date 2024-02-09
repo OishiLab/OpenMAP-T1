@@ -1,15 +1,16 @@
-# OpenMAP-T1-V2
-**OpenMAP-T1-V2 parcellates the whole brain into 280 anatomical regions based on JHU-atlas in 50 (sec/case).**
+# OpenMAP-T1-V1
+**OpenMAP-T1-V1 parcellates the whole brain into 280 anatomical regions based on JHU-atlas in 90 (sec/case).**
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1fmfkxxZjChExnl5cHITYkNYgTu3MZ7Ql#scrollTo=xwZxyL5ewVNF)
 
 ## Installation Instructions
 0. install python and make virtual environment<br>
-python3.8 or later is recommended.
+python3.9 or later is recommended.
 
-1. Clone this repository:
+1. Clone this repository, and go into the repository:
 ```
-git clone https://github.com/OishiLab/OpenMAP-T1-V2.git
+git clone https://github.com/OishiLab/OpenMAP-T1-V1.git
+cd OpenMAP-T1-V1
 ```
 2. Please install PyTorch compatible with your environment.<br>
 https://pytorch.org/
@@ -21,20 +22,22 @@ Once you select your environment, the required commands will be displayed.
 If you want to install an older Pytorch environment, you can download it from the link below.<br>
 https://pytorch.org/get-started/previous-versions/
 
-4. Go into the repository and install:
+4.  Install libraries other than PyTorch:
 ```
-cd OpenMAP-T1-V1
 pip install -r requirements.txt
 ```
+5. Please apply and download the pre-trained model from the link below and upload it to your server.
+
+6. You can run OpenMAP-T1 !!
 
 ## How to use it
 Using OpenMAP-T1 is straightforward. You can use it in any terminal on your linux system. We provide CPU as well as GPU support. Running on GPU is a lot faster though and should always be preferred. Here is a minimalistic example of how you can use OpenMAP-T1.
 ```
-python3 parcellation.py -i INPUR_DIRNAME -o OUTPUT_DIRNAME -m MODEL_DIRNAME
+python3 parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
 If you want to specify the GPU, please add ```CUDA_VISIBLE_DEVICES=N```.
 ```
-CUDA_VISIBLE_DEVICES=1 python3 parcellation.py -i INPUR_DIRNAME -o OUTPUT_DIRNAME -m MODEL_DIRNAME
+CUDA_VISIBLE_DEVICES=1 python3 parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
 
 ## How to download the pretrained model.
@@ -46,12 +49,12 @@ You can get the pretrained model from the this link.
 ## Folder
 All images you input must be in NifTi format and have a .nii extension.
 ```
-INPUR_DIRNAME/
+INPUT_FOLDER/
   ├ A.nii
   ├ B.nii
   ├ *.nii
 
-OUTPUT_DIRNAME/
+OUTPUT_FOLDER/
   ├ A/
   |   ├ A.nii # input image
   |   ├ A_volume.csv # volume information (mm^3)
@@ -61,7 +64,7 @@ OUTPUT_DIRNAME/
       ├ B_volume.csv
       └ B_280.nii
 
-MODEL_DIRNAME/
+MODEL_FOLDER/
   ├ CNet/CNet.pth
   ├ SSNet/SSNet.pth
   ├ PNet
@@ -69,8 +72,7 @@ MODEL_DIRNAME/
   |   ├ sagittal.pth
   |   └ axial.pth
   └ HNet/
-      ├ coronal.pth
-      └ axial.pth
+      └ HNet.pth
 ```
 
 ## FAQ
