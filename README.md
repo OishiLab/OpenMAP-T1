@@ -5,7 +5,7 @@
 
 ## Installation Instructions
 0. install python and make virtual environment<br>
-python3.8 or later is recommended.
+python3.9 or later is recommended.
 
 1. Clone this repository, and go into the repository:
 ```
