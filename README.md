@@ -4,7 +4,7 @@
 ![Figure3](https://github.com/OishiLab/OpenMAP-T1/assets/64403395/4b929f3c-3114-4f98-ad32-f355c939754e)
 
 [![](http://img.shields.io/badge/medRxiv-10.1101/2024.01.18.24301494-B31B1B.svg)](https://www.medrxiv.org/content/10.1101/2024.01.18.24301494v1)
-[![IEEE Xplore](https://img.shields.io/badge/under%20review-Imaging%20Neuroscience-%2300629B%09)](https://janeway.imaging-neuroscience.org/)
+[![IEEE Xplore](https://img.shields.io/badge/under%20review-Not%20yet-%2300629B%09)](https://janeway.imaging-neuroscience.org/)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1fmfkxxZjChExnl5cHITYkNYgTu3MZ7Ql#scrollTo=xwZxyL5ewVNF)
 ![Python 3.8](https://img.shields.io/badge/OpenMAP-T1-brightgreen.svg)
 
