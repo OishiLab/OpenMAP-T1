@@ -70,6 +70,7 @@ def main():
         header = odata.header
         nii = processing.conform(nii, out_shape=(header["dim"][1], header["dim"][2], header["dim"][3]), voxel_size=(header["pixdim"][1], header["pixdim"][2], header["pixdim"][3]), order=0)
         nib.save(nii, os.path.join(output_dir, f"{save}_280.nii"))
+        del odata, data
         os.remove(f"N4/{save}.nii")
     return
 
