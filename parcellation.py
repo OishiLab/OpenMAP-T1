@@ -24,10 +24,10 @@ from utils.make_csv import make_csv
 from utils.load_model import load_model
 
 def create_parser():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-i", help="input folder")
-    parser.add_argument("-o", help="output folder")
-    parser.add_argument("-m", help="model path")
+    parser = argparse.ArgumentParser(description="Use this to run inference with OpenMAP-T1.")
+    parser.add_argument("-i", required=True, help="Input folder. Specifies the folder containing the input brain MRI images.")
+    parser.add_argument("-o", required=True, help="Output folder. Difines the output folder where the results will be saved. If the specified folder does not exist, it will be automatically created.")
+    parser.add_argument("-m", required=True, help="Folder of pretrained models. Indicates the location of the pretrained models to be used for processing.")
     return parser.parse_args()
 
 def main():
