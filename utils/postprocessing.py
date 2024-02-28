@@ -18,7 +18,13 @@ def postprocessing(parcellated, separated, shift, device):
         output[mask] = value
     output = output.reshape(hmap.shape)
     output = output.cpu().detach().numpy()
-    output = output * (np.logical_or(np.logical_or(separated > 0, parcellated==87), parcellated==138))
-    output = np.pad(output, [(32,32),(16,16),(32,32)], "constant", constant_values=0)
-    output = np.roll(output, (-shift[0],-shift[1],-shift[2]), axis=(0,1,2))
+    output = output * (
+        np.logical_or(
+            np.logical_or(separated > 0, parcellated == 87), parcellated == 138
+        )
+    )
+    output = np.pad(
+        output, [(32, 32), (16, 16), (32, 32)], "constant", constant_values=0
+    )
+    output = np.roll(output, (-shift[0], -shift[1], -shift[2]), axis=(0, 1, 2))
     return output
