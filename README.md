@@ -17,7 +17,7 @@ https://pytorch.org/
 
 Once you select your environment, the required commands will be displayed.
 
-![image](media/Pytorch.png)
+![image](media/PyTorch.png)
 
 If you want to install an older Pytorch environment, you can download it from the link below.<br>
 https://pytorch.org/get-started/previous-versions/
