@@ -1,7 +1,7 @@
 ![OpenMAP_Logo_with_name](https://github.com/OishiLab/OpenMAP-T1/assets/64403395/9ce68146-eeb7-4ce0-bd49-73f1c7ded4d8)
 
 # OpenMAP-T1
-![Figure3](https://github.com/OishiLab/OpenMAP-T1/assets/64403395/4b929f3c-3114-4f98-ad32-f355c939754e)
+![Figure3](media/Representative.png)
 
 [![](http://img.shields.io/badge/medRxiv-10.1101/2024.01.18.24301494-B31B1B.svg)](https://www.medrxiv.org/content/10.1101/2024.01.18.24301494v1)
 [![IEEE Xplore](https://img.shields.io/badge/under%20review-Not%20yet-%2300629B%09)](https://janeway.imaging-neuroscience.org/)
@@ -27,7 +27,7 @@ Submitted for publication in the **Not yet**<br>
 | 1.0.0   | December 2023 | https://github.com/OishiLab/OpenMAP-T1/tree/v1.0.0 | 90 sec/case |
 
 ## Supplementary information
-![supplementary_level](https://github.com/OishiLab/OpenMAP-T1/assets/64403395/0fcb0fb1-af15-4e6e-83b9-d8f64e27307c)
+![supplementary_level](media/Multi_level.png)
 The OpenMAP-T1 parcellate the entire brain into five hierarchical structural levels, with the coarsest level comprising eight structures and the finest level comprising 280 structures. Changing these levels is easy using [ROIEditor](https://www.mristudio.org/installation.html).
 
 
