@@ -17,7 +17,7 @@ https://pytorch.org/
 
 Once you select your environment, the required commands will be displayed.
 
-![image](https://github.com/OishiLab/OpenMAP-T1/assets/64403395/05c160f5-8182-4487-a2e0-cff1db97705c)
+![image](media/PyTorch.png)
 
 If you want to install an older Pytorch environment, you can download it from the link below.<br>
 https://pytorch.org/get-started/previous-versions/
@@ -44,7 +44,7 @@ CUDA_VISIBLE_DEVICES=1 python3 parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER 
 You can get the pretrained model from the this link.
 [Link of pretrained model](https://forms.office.com/Pages/ResponsePage.aspx?id=OPSkn-axO0eAP4b4rt8N7Iz6VabmlEBIhG4j3FiMk75UQUxBMkVPTzlIQTQ1UEZJSFY1NURDNzRERC4u)
 
-![image](https://github.com/OishiLab/OpenMAP-T1/assets/64403395/2516c256-8d8f-45d3-8b68-32b07c6e9567)
+![image](Download_pretrained.png)
 
 ## Folder
 All images you input must be in NifTi format and have a .nii extension.
