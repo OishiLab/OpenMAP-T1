@@ -27,7 +27,7 @@ Submitted for publication in the **Not yet**<br>
 | 1.0.0   | December 2023 | https://github.com/OishiLab/OpenMAP-T1/tree/v1.0.0 | 90 sec/case |
 
 ## Supplementary information
-![supplementary_level](media/Multi_level.png)
+![supplementary_level](media/Multilevel.png)
 The OpenMAP-T1 parcellate the entire brain into five hierarchical structural levels, with the coarsest level comprising eight structures and the finest level comprising 280 structures. Changing these levels is easy using [ROIEditor](https://www.mristudio.org/installation.html).
 
 
