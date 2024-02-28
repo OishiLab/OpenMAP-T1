@@ -1,6 +1,9 @@
 import os
+
 import torch
+
 from utils.network import UNet
+
 
 def load_model(opt, device):
     cnet = UNet(1, 1)

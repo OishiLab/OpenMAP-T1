@@ -21,5 +21,9 @@ def postprocessing(parcellated, separated, device):
         output[mask] = value
     output = output.reshape(hmap.shape)
     output = output.cpu().detach().numpy()
-    output = output * (np.logical_or(np.logical_or(separated > 0, parcellated==87), parcellated==138))
+    output = output * (
+        np.logical_or(
+            np.logical_or(separated > 0, parcellated == 87), parcellated == 138
+        )
+    )
     return output

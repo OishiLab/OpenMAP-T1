@@ -20,10 +20,13 @@ def N4_Bias_Field_Correction(input_path, output_path):
     sitk.WriteImage(corrected_image_full_resolution, output_path)
     return
 
+
 def preprocessing(ipath, save):
     opath = f"N4/{save}.nii"
     os.makedirs("N4", exist_ok=True)
     N4_Bias_Field_Correction(ipath, opath)
     odata = nib.squeeze_image(nib.as_closest_canonical(nib.load(opath)))
-    data = processing.conform(odata, out_shape=(256, 256, 256), voxel_size=(1.0, 1.0, 1.0), order=1)
+    data = processing.conform(
+        odata, out_shape=(256, 256, 256), voxel_size=(1.0, 1.0, 1.0), order=1
+    )
     return odata, data
