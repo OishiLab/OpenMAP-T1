@@ -46,9 +46,6 @@ def make_csv(parcellation, save, pixdim):
         df.loc[str(i), save] = volume
         
     lev5_df = df.set_index("region").T.reset_index().rename(columns={"index": "uid"})
-    lev4_df = change_level(lev5_df, level="Type1_Level4")
-    lev3_df = change_level(lev5_df, level="Type1_Level3")
-    lev2_df = change_level(lev5_df, level="Type1_Level2")
     lev1_df = change_level(lev5_df, level="Type1_Level1")
     
     region_stats = {
@@ -71,6 +68,6 @@ def make_csv(parcellation, save, pixdim):
     message = [message] + [""] * (num_columns - 1) 
 
     qc_df.loc[len(qc_df)] = pd.Series(message, index=qc_df.columns)
-    lev1_df["pixdim"] = [pixdim]
+    lev5_df["pixdim"] = [pixdim]
     
-    return lev5_df, lev4_df, lev3_df, lev2_df, lev1_df, qc_df
+    return lev5_df, qc_df

@@ -17,7 +17,6 @@ from utils.cropping import cropping
 from utils.hemisphere import hemisphere
 from utils.load_model import load_model
 from utils.make_csv import make_csv
-from utils.make_reface import make_reface
 from utils.parcellation import parcellation
 from utils.postprocessing import postprocessing
 from utils.preprocessing import preprocessing
@@ -68,17 +67,8 @@ def main():
         os.makedirs(output_dir, exist_ok=True)
 
         odata = nib.squeeze_image(nib.as_closest_canonical(nib.load(path)))
-        idata = processing.conform(
-            odata, out_shape=(256, 256, 256), voxel_size=(1.0, 1.0, 1.0), order=1
-        )
-        bdata = nib.squeeze_image(nib.as_closest_canonical(nib.load("meanbrain.nii")))
-        bdata = processing.conform(
-            bdata, out_shape=(256, 256, 256), voxel_size=(1.0, 1.0, 1.0), order=1
-        )
-        vdata = nib.squeeze_image(nib.as_closest_canonical(nib.load("meanhead.nii")))
-        vdata = processing.conform(
-            vdata, out_shape=(256, 256, 256), voxel_size=(1.0, 1.0, 1.0), order=1
-        )
+        nii = nib.Nifti1Image(odata.get_fdata().astype(np.float32), affine=odata.affine)
+        nib.save(nii, os.path.join(output_dir, f"{save}.nii"))
 
         odata, data, pixdim = preprocessing(path, save)
         cropped = cropping(data, cnet, device)
@@ -87,31 +77,12 @@ def main():
         separated = hemisphere(stripped, hnet_c, hnet_a, device)
         output = postprocessing(parcellated, separated, shift, device)
 
-        lev5_df, lev4_df, lev3_df, lev2_df, lev1_df, qc_df = make_csv(output, save, pixdim)
-        
-        lev5_df.to_csv(os.path.join(output_dir, f"{save}_level5volume.csv"), index=False)
-        lev4_df.to_csv(os.path.join(output_dir, f"{save}_level4volume.csv"), index=False)
-        lev3_df.to_csv(os.path.join(output_dir, f"{save}_level3volume.csv"), index=False)
-        lev2_df.to_csv(os.path.join(output_dir, f"{save}_level2volume.csv"), index=False)
-        lev1_df.to_csv(os.path.join(output_dir, f"{save}_level1volume.csv"), index=False)
+        lev5_df, qc_df = make_csv(output, save, pixdim)
+        lev5_df.to_csv(os.path.join(output_dir, f"{save}_volume.csv"), index=False)
         qc_df.to_csv(os.path.join(output_dir, f"{save}_qc.csv"), index=False)
-        
-        ldata = nib.Nifti1Image(out_e.astype(np.uint16), affine=data.affine)
-        ldata = processing.conform(
-            ldata, out_shape=(256, 256, 256), voxel_size=(1.0, 1.0, 1.0), order=1
-        )
-        header = odata.header
-        reface = make_reface(idata, bdata, vdata, ldata)
-        nii = nib.Nifti1Image(reface.astype(np.float32), affine=data.affine)
-        nii = processing.conform(
-            nii,
-            out_shape=(header["dim"][1], header["dim"][2], header["dim"][3]),
-            voxel_size=(header["pixdim"][1], header["pixdim"][2], header["pixdim"][3]),
-            order=1,
-        )
-        nib.save(nii, os.path.join(output_dir, f"{save}.nii"))
 
         nii = nib.Nifti1Image(output.astype(np.uint16), affine=data.affine)
+        header = odata.header
         nii = processing.conform(
             nii,
             out_shape=(header["dim"][1], header["dim"][2], header["dim"][3]),
