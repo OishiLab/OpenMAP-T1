@@ -1,5 +1,6 @@
-# OpenMAP-T1-V2
+# OpenMAP-T1-V2 plus QC and Refacing
 **OpenMAP-T1-V2 parcellates the whole brain into 280 anatomical regions based on JHU-atlas in 50 (sec/case).**
+**The entire process takes 210 (sec/case).**
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1fmfkxxZjChExnl5cHITYkNYgTu3MZ7Ql#scrollTo=xwZxyL5ewVNF)
 
@@ -56,12 +57,22 @@ INPUR_FOLDER/
 
 OUTPUT_FOLDER/
   ├ A/
-  |   ├ A.nii # input image
-  |   ├ A_volume.csv # volume information (mm^3)
+  |   ├ A.nii # refaced input image
+  |   ├ A_level1volume.csv # level1 volume information (mm^3)
+  |   ├ A_level2volume.csv # level2 volume information (mm^3)
+  |   ├ A_level3volume.csv # level3 volume information (mm^3)
+  |   ├ A_level4volume.csv # level4 volume information (mm^3)
+  |   ├ A_level5volume.csv # level5 volume information (mm^3)
+  |   ├ A_qc.csv # quality control
   |   └ A_280.nii # parcellation map
   └ B/
       ├ B.nii
-      ├ B_volume.csv
+      ├ B_level1volume.csv
+      ├ B_level2volume.csv
+      ├ B_level3volume.csv
+      ├ B_level4volume.csv
+      ├ B_level5volume.csv
+      ├ B_qc.csv
       └ B_280.nii
 
 MODEL_FOLDER/

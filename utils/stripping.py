@@ -39,4 +39,4 @@ def stripping(voxel, data, ssnet, device):
     zd = 128 - z
     stripped = np.roll(stripped, (xd, yd, zd), axis=(0, 1, 2))
     stripped = stripped[32:-32, 16:-16, 32:-32]
-    return stripped, (xd, yd, zd)
+    return stripped, (xd, yd, zd), out_e

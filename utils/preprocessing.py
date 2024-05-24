@@ -27,7 +27,8 @@ def preprocessing(ipath, save):
     os.makedirs("N4", exist_ok=True)
     N4_Bias_Field_Correction(ipath, opath)
     odata = nib.squeeze_image(nib.as_closest_canonical(nib.load(opath)))
+    pixdim = odata.header.get_zooms()
     data = processing.conform(
         odata, out_shape=(256, 256, 256), voxel_size=(1.0, 1.0, 1.0), order=1
     )
-    return odata, data
+    return odata, data , pixdim
