@@ -52,8 +52,7 @@ def make_csv(parcellation, save, pixdim):
     lev1_df = change_level(lev5_df, level="Type1_Level1")
     
     region_stats = {
-        # 'Telencephalon_L': {'min': 321688.750000, 'max': 694587.707520, 'mean': 460443.2969543, 'std': 51764.523737},
-        'Telencephalon_L': {'min': 321688.750000, 'max': 321688.750000, 'mean': 460443.2969543, 'std': 51764.523737},
+        'Telencephalon_L': {'min': 321688.750000, 'max': 694587.707520, 'mean': 460443.2969543, 'std': 51764.523737},
         'Telencephalon_R': {'min': 326145.073700, 'max': 706307.939926, 'mean': 465247.798455, 'std': 52265.325944},
         'Diencephalon_L': {'min': 5287.283532, 'max': 11819.827568, 'mean': 8085.498710, 'std': 813.392248},
         'Diencephalon_R': {'min': 5635.978500, 'max': 11917.817848, 'mean': 8209.691222, 'std': 826.833165},
