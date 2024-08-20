@@ -40,9 +40,10 @@ If you want to specify the GPU, please add ```CUDA_VISIBLE_DEVICES=N```.
 ```
 CUDA_VISIBLE_DEVICES=1 python3 parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
+If the error occurs for Windows users, please change ```Python3``` to ```Python```.
 
 ## How to download the pretrained model.
-You can get the pretrained model from the this link.
+You can get the pretrained model from this link.
 [Link of pretrained model](https://forms.office.com/Pages/ResponsePage.aspx?id=OPSkn-axO0eAP4b4rt8N7Iz6VabmlEBIhG4j3FiMk75UQUxBMkVPTzlIQTQ1UEZJSFY1NURDNzRERC4u)
 
 ![image](media/Download_pretrained.png)
