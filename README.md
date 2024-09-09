@@ -66,7 +66,6 @@ OUTPUT_FOLDER/
       └ B_280.nii
 
 MODEL_FOLDER/
-  ├ CNet/CNet.pth
   ├ SSNet/SSNet.pth
   ├ PNet
   |   ├ coronal.pth
