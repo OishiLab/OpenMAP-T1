@@ -24,9 +24,13 @@ from utils.stripping import stripping
 
 
 def create_parser():
-    parser = argparse.ArgumentParser(
-        description="Use this to run inference with OpenMAP-T1."
-    )
+    """
+    Creates and returns the argument parser for the script.
+
+    Returns:
+        argparse.Namespace: Parsed command-line arguments.
+    """
+    parser = argparse.ArgumentParser(description="Use this to run inference with OpenMAP-T1.")
     parser.add_argument(
         "-i",
         required=True,
@@ -35,7 +39,7 @@ def create_parser():
     parser.add_argument(
         "-o",
         required=True,
-        help="Output folder. Difines the output folder where the results will be saved. If the specified folder does not exist, it will be automatically created.",
+        help="Output folder. Defines the output folder where the results will be saved. If the specified folder does not exist, it will be automatically created.",
     )
     parser.add_argument(
         "-m",
