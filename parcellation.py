@@ -1,7 +1,6 @@
 import argparse
 import glob
 import os
-import time
 from functools import partial
 
 import nibabel as nib
