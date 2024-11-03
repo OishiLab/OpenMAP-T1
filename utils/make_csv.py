@@ -23,7 +23,7 @@ def change_level(df, level="Type1_Level1", sulcus=True):
     - The function creates a dictionary mapping ROI numbers to the specified level and aggregates the DataFrame accordingly.
     """
     ROI_number = pd.read_csv("level/Level_ROI_No.csv")
-    ROI_name = pd.read_csv("level/Level_ROI_No.csv")
+    ROI_name = pd.read_csv("level/Level_ROI_Name.csv")
 
     if sulcus == False:
         tmp = ROI_number["Type1_Level2"]
@@ -86,7 +86,7 @@ def make_csv(parcellation, output_dir, basename):
     df_Type2_level2 = change_level(df_Type1_level5, level="Type2_Level2")
     df_Type2_level1 = change_level(df_Type1_level5, level="Type2_Level1")
 
-    df_Type1_level5.to_csv(os.path.join(output_dir, f"{basename}_volume.csv"), index=False)
+    df_Type1_level5.to_csv(os.path.join(output_dir, f"{basename}_Type1_Level5.csv"), index=False)
     df_Type1_level4.to_csv(os.path.join(output_dir, f"{basename}_Type1_Level4.csv"), index=False)
     df_Type1_level3.to_csv(os.path.join(output_dir, f"{basename}_Type1_Level3.csv"), index=False)
     df_Type1_level2.to_csv(os.path.join(output_dir, f"{basename}_Type1_Level2.csv"), index=False)
