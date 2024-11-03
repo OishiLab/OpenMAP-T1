@@ -42,3 +42,9 @@ The OpenMAP-T1 parcellate the entire brain into five hierarchical structural lev
   publisher={Cold Spring Harbor Laboratory Press}
 }
 ```
+
+## Related Research
+The following studies have utilized OpenMAP-T1 for advanced segmentation and analysis in T1-weighted MRI. 
+1. **[Acceleration of Brain Atrophy and Progression From Normal Cognition to Mild Cognitive Impairment](https://jamanetwork.com/journals/jamanetworkopen/fullarticle/2825474)**  
+   *Authors:* Yuto Uchida, MD, PhD; Kei Nishimaki; Anja Soldan, PhD; Abhay Moghekar, MBBS; Marilyn Albert, PhD; Kenichi Oishi, MD, PhD;  
+   *Journal:* JAMA Network Open  
