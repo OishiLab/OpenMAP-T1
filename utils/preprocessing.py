@@ -7,6 +7,16 @@ from nibabel.orientations import aff2axcodes, axcodes2ornt, ornt_transform
 
 
 def N4_Bias_Field_Correction(input_path, output_path):
+    """
+    Perform N4 Bias Field Correction on an input image and save the corrected image to the specified output path.
+
+    Args:
+        input_path (str): Path to the input image file.
+        output_path (str): Path to save the corrected image file.
+
+    Returns:
+        None
+    """
     raw_img_sitk = sitk.ReadImage(input_path, sitk.sitkFloat32)
     transformed = sitk.RescaleIntensity(raw_img_sitk, 0, 255)
     transformed = sitk.LiThreshold(transformed, 0, 1)
@@ -22,12 +32,22 @@ def N4_Bias_Field_Correction(input_path, output_path):
     return
 
 
-def preprocessing(ipath, save):
-    opath = f"N4/{save}.nii"
-    os.makedirs("N4", exist_ok=True)
+def preprocessing(ipath, output_dir, basename):
+    """
+    Preprocesses a medical image by performing N4 bias field correction and conforming the image to a specified shape and voxel size.
+
+    Args:
+        ipath (str): The input file path of the medical image to be processed.
+        output_dir (str): The directory where the processed image will be saved.
+        basename (str): The base name for the output file.
+
+    Returns:
+        tuple: A tuple containing:
+            - odata (nibabel.Nifti1Image): The N4 bias field corrected image.
+            - data (nibabel.Nifti1Image): The conformed image with specified shape and voxel size.
+    """
+    opath = os.path.join(output_dir, f"{basename}_N4.nii")
     N4_Bias_Field_Correction(ipath, opath)
     odata = nib.squeeze_image(nib.as_closest_canonical(nib.load(opath)))
-    data = processing.conform(
-        odata, out_shape=(256, 256, 256), voxel_size=(1.0, 1.0, 1.0), order=1
-    )
+    data = processing.conform(odata, out_shape=(256, 256, 256), voxel_size=(1.0, 1.0, 1.0), order=1)
     return odata, data
