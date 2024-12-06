@@ -5,9 +5,10 @@
 
 ## Installation Instructions
 0. install python and make virtual environment<br>
-Python 3.9 or later is recommended. However, as of December 6, 2024, OpenMAP-T1 does not work with Python 3.13. If you encounter issues, please consider using a different version.
+Python 3.9 or later is recommended. However, as of December 6, 2024, OpenMAP-T1 does not work with Python 3.13.<br>
+If you encounter issues, please consider using a different version.
 
-1. Clone this repository, and go into the repository:
+2. Clone this repository, and go into the repository:
 ```
 git clone -b v2.0.0 https://github.com/OishiLab/OpenMAP-T1.git
 cd OpenMAP-T1
