@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-from utils.functions import normalize
+from openmap_t1.utils.functions import normalize
 
 
 def parcellate(voxel, model, device, mode):

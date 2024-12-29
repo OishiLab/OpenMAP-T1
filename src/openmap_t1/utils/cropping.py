@@ -2,7 +2,7 @@ import numpy as np
 import torch
 from scipy.ndimage import binary_closing
 
-from utils.functions import normalize
+from openmap_t1.utils.functions import normalize
 
 
 def crop(voxel, model, device):

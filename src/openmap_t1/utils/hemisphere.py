@@ -1,7 +1,7 @@
 import torch
 from scipy.ndimage import binary_dilation
 
-from utils.functions import normalize
+from openmap_t1.utils.functions import normalize
 
 
 def separate(voxel, model, device, mode):

@@ -2,9 +2,10 @@ import numpy as np
 import torch
 from scipy import ndimage
 
-from utils.functions import normalize
+from openmap_t1.utils.functions import normalize
 
 
+@torch.inference_mode()
 def strip(voxel, model, device):
     """
     Applies a given model to a 3D voxel array and returns the processed output.
@@ -20,27 +21,25 @@ def strip(voxel, model, device):
     # Set the model to evaluation mode
     model.eval()
 
-    # Disable gradient calculation for inference
-    with torch.inference_mode():
-        # Initialize an empty tensor to store the output
-        output = torch.zeros(256, 256, 256).to(device)
+    # Initialize an empty tensor to store the output
+    output = torch.zeros(256, 256, 256).to(device)
 
-        # Iterate over each slice in the voxel data
-        for i, v in enumerate(voxel):
-            # Reshape the slice to match the model's input dimensions
-            image = v.reshape(1, 1, 256, 256)
+    # Iterate over each slice in the voxel data
+    for i, v in enumerate(voxel):
+        # Reshape the slice to match the model's input dimensions
+        image = v.reshape(1, 1, 256, 256)
 
-            # Convert the numpy array to a PyTorch tensor and move it to the specified device
-            image = torch.tensor(image).to(device)
+        # Convert the numpy array to a PyTorch tensor and move it to the specified device
+        image = torch.tensor(image).to(device)
 
-            # Apply the model to the input image and apply the sigmoid activation function
-            x_out = torch.sigmoid(model(image)).detach()
+        # Apply the model to the input image and apply the sigmoid activation function
+        x_out = torch.sigmoid(model(image)).detach()
 
-            # Store the output in the corresponding slice of the output tensor
-            output[i] = x_out
+        # Store the output in the corresponding slice of the output tensor
+        output[i] = x_out
 
-        # Reshape the output tensor to the original voxel dimensions and return it
-        return output.reshape(256, 256, 256)
+    # Reshape the output tensor to the original voxel dimensions and return it
+    return output.reshape(256, 256, 256)
 
 
 def stripping(voxel, data, ssnet, device):

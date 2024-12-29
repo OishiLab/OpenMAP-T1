@@ -1,13 +1,37 @@
-import os
+from dataclasses import dataclass, fields
 
 import torch
+from loguru import logger
 
-from utils.network import UNet
+from openmap_t1.models.unet import UNet
 
 
-def load_model(opt, device):
-    """
-    This function loads multiple pre-trained models and sets them to evaluation mode.
+@dataclass
+class UNetModels(object):
+    cnet: UNet
+    ssnet: UNet
+    pnet_c: UNet
+    pnet_s: UNet
+    pnet_a: UNet
+    hnet_c: UNet
+    hnet_a: UNet
+
+    def to(self, device: torch.device) -> None:
+        for field in fields(self):
+            logger.debug(f"Moving {field.name} to {device}")
+            model = getattr(self, field.name)
+            model.to(device)
+
+    def eval(self) -> None:
+        for field in fields(self):
+            logger.debug(f"Setting {field.name} to evaluation mode")
+            model = getattr(self, field.name)
+            model.eval()
+
+
+def load_models(device: torch.device) -> UNetModels:
+    """This function loads multiple pre-trained models and sets them to evaluation mode.
+
     The models loaded are:
     1. CNet: A U-Net model for some specific task.
     2. SSNet: Another U-Net model for a different task.
@@ -18,67 +42,21 @@ def load_model(opt, device):
     7. HNet axial: A U-Net model for axial plane predictions with different input/output channels.
 
     Parameters:
-    opt (object): An options object containing model paths.
-    device (torch.device): The device on which to load the models (CPU or GPU).
+        device (torch.device): The device on which to load the models (CPU or GPU).
 
     Returns:
-    tuple: A tuple containing all the loaded models.
+        UNetModels: A dataclass containing all the loaded models
     """
-    # Load CNet model
-    cnet = UNet(1, 1)
-    cnet.load_state_dict(
-        torch.load(os.path.join(opt.m, "CNet/CNet.pth"), weights_only=True)
-    )
-    cnet.to(device)
-    cnet.eval()
 
-    # Load SSNet model
-    ssnet = UNet(1, 1)
-    ssnet.load_state_dict(
-        torch.load(os.path.join(opt.m, "SSNet/SSNet.pth"), weights_only=True)
+    models = UNetModels(
+        cnet=UNet.from_pretrained("OishiLab/OpenMAP-T1/CNet"),
+        ssnet=UNet.from_pretrained("OishiLab/OpenMAP-T1/SSNet"),
+        pnet_c=UNet.from_pretrained("OishiLab/OpenMAP-T1/PNet/coronal"),
+        pnet_s=UNet.from_pretrained("OishiLab/OpenMAP-T1/PNet/sagittal"),
+        pnet_a=UNet.from_pretrained("OishiLab/OpenMAP-T1/PNet/axial"),
+        hnet_c=UNet.from_pretrained("OishiLab/OpenMAP-T1/HNet/coronal"),
+        hnet_a=UNet.from_pretrained("OishiLab/OpenMAP-T1/HNet/axial"),
     )
-    ssnet.to(device)
-    ssnet.eval()
-
-    # Load PNet coronal model
-    pnet_c = UNet(3, 142)
-    pnet_c.load_state_dict(
-        torch.load(os.path.join(opt.m, "PNet/coronal.pth"), weights_only=True)
-    )
-    pnet_c.to(device)
-    pnet_c.eval()
-
-    # Load PNet sagittal model
-    pnet_s = UNet(3, 142)
-    pnet_s.load_state_dict(
-        torch.load(os.path.join(opt.m, "PNet/sagittal.pth"), weights_only=True)
-    )
-    pnet_s.to(device)
-    pnet_s.eval()
-
-    # Load PNet axial model
-    pnet_a = UNet(3, 142)
-    pnet_a.load_state_dict(
-        torch.load(os.path.join(opt.m, "PNet/axial.pth"), weights_only=True)
-    )
-    pnet_a.to(device)
-    pnet_a.eval()
-
-    # Load HNet coronal model
-    hnet_c = UNet(1, 3)
-    hnet_c.load_state_dict(
-        torch.load(os.path.join(opt.m, "HNet/coronal.pth"), weights_only=True)
-    )
-    hnet_c.to(device)
-    hnet_c.eval()
-
-    # Load HNet axial model
-    hnet_a = UNet(1, 3)
-    hnet_a.load_state_dict(
-        torch.load(os.path.join(opt.m, "HNet/axial.pth"), weights_only=True)
-    )
-    hnet_a.to(device)
-    hnet_a.eval()
-
-    # Return all loaded models
-    return cnet, ssnet, pnet_c, pnet_s, pnet_a, hnet_c, hnet_a
+    models.to(device)
+    models.eval()
+    return models
