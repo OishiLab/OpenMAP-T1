@@ -28,7 +28,9 @@ def parcellate(voxel, model, device, mode):
     model.eval()
 
     # Pad the voxel volume to handle edge cases
-    voxel = np.pad(voxel, [(1, 1), (0, 0), (0, 0)], "constant", constant_values=voxel.min())
+    voxel = np.pad(
+        voxel, [(1, 1), (0, 0), (0, 0)], "constant", constant_values=voxel.min()
+    )
 
     # Disable gradient calculation for inference
     with torch.inference_mode():

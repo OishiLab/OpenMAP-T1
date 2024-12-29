@@ -29,7 +29,9 @@ def create_parser():
     Returns:
         argparse.Namespace: Parsed command-line arguments.
     """
-    parser = argparse.ArgumentParser(description="Use this to run inference with OpenMAP-T1.")
+    parser = argparse.ArgumentParser(
+        description="Use this to run inference with OpenMAP-T1."
+    )
     parser.add_argument(
         "-i",
         required=True,
@@ -101,9 +103,9 @@ def main():
     print("load complete !!")
 
     # Get the list of input files
-    pathes = sorted(glob.glob(os.path.join(opt.i, "**/*.nii"), recursive=True)) + sorted(
-        glob.glob(os.path.join(opt.i, "**/*.nii.gz"), recursive=True)
-    )
+    pathes = sorted(
+        glob.glob(os.path.join(opt.i, "**/*.nii"), recursive=True)
+    ) + sorted(glob.glob(os.path.join(opt.i, "**/*.nii.gz"), recursive=True))
 
     for path in tqdm(pathes):
         # Extract the base name of the file (without extension)
