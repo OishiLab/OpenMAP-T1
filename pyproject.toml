@@ -1,0 +1,31 @@
+[project]
+name = "openmap-t1"
+version = "2.0.0"
+description = "A tool for processing T1-weighted MRI images."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "loguru>=0.7.3",
+    "nibabel>=5.2.0",
+    "pandas>=2.0.0",
+    "scipy>=1.11.4",
+    "simpleitk>=2.3.1",
+    "torch>=1.0.0",
+    "tqdm>=4.66.1",
+    "transformers>=4.30.0",
+]
+
+[dependency-groups]
+dev = [
+    "gdown>=5.2.0",
+    "mypy>=1.0.0",
+    "pytest>=6.0.0",
+    "ruff>=0.1.5",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.scripts]
+openmap-t1 = "openmap_t1.__main__:run"
