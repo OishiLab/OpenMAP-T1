@@ -105,7 +105,6 @@ class TestLoadPretrainedModel(OpenmapT1TestCase):
     ):
         model_dir = self.PROJECT_ROOT / "data" / "OpenMAP-T1-V2.0.0" / "PNet"
         model_path = model_dir / f"{model_name}.pth"
-        save_path = f"{repo_id}/PNet/{model_name}"
 
         config = UNetConfig(ch_in=3, ch_out=142)
         pnet_s = UNet(config)
