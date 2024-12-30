@@ -29,3 +29,11 @@ build-backend = "hatchling.build"
 
 [project.scripts]
 openmap-t1 = "openmap_t1.__main__:run"
+
+[project.optional-dependencies]
+demo = [
+    "gradio>=5.9.1",
+]
+api = [
+    "fastapi[standard]>=0.115.6",
+]
