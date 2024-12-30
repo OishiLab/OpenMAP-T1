@@ -1,7 +1,8 @@
-from typing import List
-
 import torch
 import torch.nn as nn
+from transformers import PreTrainedModel
+
+from .configuration_unet import UNetConfig
 
 
 class ConvBlock(nn.Module):
@@ -51,11 +52,13 @@ class DecodeBlock(nn.Module):
         return h
 
 
-class UNet(nn.Module):
-    def __init__(self, ch_in, ch_out):
-        super(UNet, self).__init__()
+class UNet(PreTrainedModel):
+    config_class = UNetConfig
+
+    def __init__(self, config: UNetConfig) -> None:
+        super().__init__(config)
         self.econv0 = nn.Conv2d(
-            ch_in, 64, kernel_size=1, stride=1, padding=0, bias=True
+            config.ch_in, 64, kernel_size=1, stride=1, padding=0, bias=True
         )
         nn.init.normal_(self.econv0.weight, mean=0.0, std=0.02)
 
@@ -70,7 +73,7 @@ class UNet(nn.Module):
         self.dconv1 = self.make_upblock(128, 64)
 
         self.dconv0 = nn.Conv2d(
-            64, ch_out, kernel_size=1, stride=1, padding=0, bias=True
+            64, config.ch_out, kernel_size=1, stride=1, padding=0, bias=True
         )
         nn.init.normal_(self.dconv0.weight, mean=0.0, std=0.02)
 

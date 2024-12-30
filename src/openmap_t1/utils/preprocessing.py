@@ -49,5 +49,7 @@ def preprocessing(ipath, output_dir, basename):
     opath = os.path.join(output_dir, f"{basename}_N4.nii")
     N4_Bias_Field_Correction(ipath, opath)
     odata = nib.squeeze_image(nib.as_closest_canonical(nib.load(opath)))
-    data = processing.conform(odata, out_shape=(256, 256, 256), voxel_size=(1.0, 1.0, 1.0), order=1)
+    data = processing.conform(
+        odata, out_shape=(256, 256, 256), voxel_size=(1.0, 1.0, 1.0), order=1
+    )
     return odata, data

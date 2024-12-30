@@ -1,7 +1,7 @@
 import torch
 from scipy.ndimage import binary_dilation
 
-from utils.functions import normalize
+from openmap_t1.utils.functions import normalize
 
 
 def separate(voxel, model, device, mode):
@@ -85,7 +85,9 @@ def hemisphere(voxel, hnet_c, hnet_a, device):
     dilated_mask_1[out_e == 2] = 2
 
     # Perform binary dilation on the mask for class 2
-    dilated_mask_2 = binary_dilation(dilated_mask_1 == 2, iterations=5).astype("int16") * 2
+    dilated_mask_2 = (
+        binary_dilation(dilated_mask_1 == 2, iterations=5).astype("int16") * 2
+    )
     dilated_mask_2[dilated_mask_1 == 1] = 1
 
     # Return the final dilated mask
