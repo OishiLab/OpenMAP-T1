@@ -1,4 +1,5 @@
 from dataclasses import dataclass, fields
+from typing import Optional
 
 import torch
 from loguru import logger
@@ -29,6 +30,18 @@ class UNetModels(object):
             model.eval()
 
 
+def get_device(device: Optional[torch.device] = None) -> torch.device:
+    if device is not None:
+        return device
+
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    elif torch.backends.mps.is_available():
+        return torch.device("mps")
+    else:
+        return torch.device("cpu")
+
+
 def load_models(device: torch.device) -> UNetModels:
     """This function loads multiple pre-trained models and sets them to evaluation mode.
 
@@ -49,13 +62,41 @@ def load_models(device: torch.device) -> UNetModels:
     """
 
     models = UNetModels(
-        cnet=UNet.from_pretrained("OishiLab/OpenMAP-T1/CNet"),
-        ssnet=UNet.from_pretrained("OishiLab/OpenMAP-T1/SSNet"),
-        pnet_c=UNet.from_pretrained("OishiLab/OpenMAP-T1/PNet/coronal"),
-        pnet_s=UNet.from_pretrained("OishiLab/OpenMAP-T1/PNet/sagittal"),
-        pnet_a=UNet.from_pretrained("OishiLab/OpenMAP-T1/PNet/axial"),
-        hnet_c=UNet.from_pretrained("OishiLab/OpenMAP-T1/HNet/coronal"),
-        hnet_a=UNet.from_pretrained("OishiLab/OpenMAP-T1/HNet/axial"),
+        cnet=UNet.from_pretrained(
+            "OishiLab/OpenMAP-T1",
+            subfolder="CNet",
+            revision="v2.0.0",
+        ),
+        ssnet=UNet.from_pretrained(
+            "OishiLab/OpenMAP-T1",
+            subfolder="SSNet",
+            revision="v2.0.0",
+        ),
+        pnet_c=UNet.from_pretrained(
+            "OishiLab/OpenMAP-T1",
+            subfolder="PNet/coronal",
+            revision="v2.0.0",
+        ),
+        pnet_s=UNet.from_pretrained(
+            "OishiLab/OpenMAP-T1",
+            subfolder="PNet/sagittal",
+            revision="v2.0.0",
+        ),
+        pnet_a=UNet.from_pretrained(
+            "OishiLab/OpenMAP-T1",
+            subfolder="PNet/axial",
+            revision="v2.0.0",
+        ),
+        hnet_c=UNet.from_pretrained(
+            "OishiLab/OpenMAP-T1",
+            subfolder="HNet/coronal",
+            revision="v2.0.0",
+        ),
+        hnet_a=UNet.from_pretrained(
+            "OishiLab/OpenMAP-T1",
+            subfolder="HNet/axial",
+            revision="v2.0.0",
+        ),
     )
     models.to(device)
     models.eval()

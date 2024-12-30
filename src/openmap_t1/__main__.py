@@ -4,7 +4,7 @@ import sys
 
 from transformers import HfArgumentParser
 
-from openmap_t1.commands.parcellation import ParcellationArgs, run_parcellation
+from openmap_t1.commands.parcellation import ParcellationArgs, run_parcellations
 
 
 def run():
@@ -29,6 +29,6 @@ def run():
     if subcommand_args.subcommand == "parcellation":
         subparser = HfArgumentParser(dataclass_types=ParcellationArgs)
         (args,) = subparser.parse_args_into_dataclasses()
-        return run_parcellation(args)
+        return run_parcellations(args)
     else:
         raise ValueError(f"Unsupported subcommand: {subcommand_args.subcommand}")

@@ -13,6 +13,7 @@ from tqdm.auto import tqdm
 from openmap_t1.utils import (
     UNetModels,
     cropping,
+    get_device,
     hemisphere,
     load_models,
     make_csv,
@@ -37,7 +38,7 @@ class ParcellationArgs(object):
     )
 
 
-def _run_parcellation(
+def run_parcellation(
     nii_path: pathlib.Path,
     models: UNetModels,
     device: torch.device,
@@ -100,7 +101,7 @@ def _run_parcellation(
     gc.collect()
 
 
-def run_parcellation(args: ParcellationArgs):
+def run_parcellations(args: ParcellationArgs):
     logger.info(
         "\n\n"
         "#######################################################################\n"
@@ -111,12 +112,7 @@ def run_parcellation(args: ParcellationArgs):
         "#######################################################################\n"
     )
     # Determine the device to use (CUDA, MPS, or CPU)
-    if torch.cuda.is_available():
-        device = torch.device("cuda")
-    elif torch.backends.mps.is_available():
-        device = torch.device("mps")
-    else:
-        device = torch.device("cpu")
+    device = get_device()
     logger.debug(f"Using device: {device}")
 
     # Load the pretrained models
@@ -129,7 +125,7 @@ def run_parcellation(args: ParcellationArgs):
 
     # Run the parcellation on each input file
     for nii_path in tqdm(nii_pathes):
-        _run_parcellation(
+        run_parcellation(
             nii_path=nii_path,
             models=models,
             device=device,
