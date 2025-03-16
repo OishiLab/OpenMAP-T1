@@ -1,0 +1,8 @@
+1	Telencephalon_L
+2	Telencephalon_R
+3	Diencephalon_L
+4	Diencephalon_R
+5	Mesencephalon
+6	Metencephalon
+7	Myelencephalon
+8	CSF
