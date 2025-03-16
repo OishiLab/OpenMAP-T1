@@ -20,7 +20,45 @@ The Richman Family Precision Medicine Center of Excellence in Alzheimer's Diseas
 Paper: https://onlinelibrary.wiley.com/doi/full/10.1002/hbm.70063<br>
 Submitted for publication in the **Human Brain Mapping**<br>
 
-## Installation Instruction
+# Docker Installation Instruction
+1. Build the Docker Image
+
+In summary, this command creates a Docker image named "openmap-t1" based on the Dockerfile and files in your current directory.
+```
+docker build -t openmap-t1 .
+```
+* ```docker build```: This command builds a Docker image using the instructions provided in the Dockerfile.
+* ```-t openmap-t1```: The -t flag tags the image with the name "openmap-t1". This makes it easier to refer to later.
+* ```.```: The dot represents the build context, which means Docker will look for the Dockerfile and other necessary files in the current directory.
+
+2. Run the Docker Container
+```
+docker run --rm -it -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
+```
+* ```docker run```: This starts a new container from a Docker image.
+* ```--rm```: Automatically removes the container when it stops running, keeping your system clean by not leaving behind stopped containers.
+
+* ```-it```
+Combines two options:
+   * ```-i``` keeps STDIN open (interactive mode).
+   * ```-t``` allocates a pseudo-TTY (allows terminal-like interaction).
+
+Together, these options let you interact with the container through your terminal if needed.
+
+* ```-v "$(pwd):/app"```: Mounts your current working directory (the result of $(pwd)) into the /app directory inside the container. This means:
+   * Any files in your current folder are available inside the container under /app.
+   * Any changes made inside the container (like output files) will be reflected on your host system.
+
+* ```openmap-t1```: This is the name of the Docker image from which the container is created. It should have been built previously using a command like ```docker build -t openmap-t1 .```.
+
+* ```-i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER```
+These are the command-line arguments passed to the application running inside the container:
+   * ```-i INPUT_FOLDER```: Specifies the input folder path.
+   * ```-o OUTPUT_FOLDER```: Specifies the output folder path.
+   * ```-m MODEL_FOLDER```: Specifies the model folder path.
+Replace ```INPUT_FOLDER```, ```OUTPUT_FOLDER```, and ```MODEL_FOLDER``` with the appropriate directory names or paths that exist within the mounted ```/app``` directory.
+
+# Default Installation Instruction
 **OpenMAP-T1-V2 parcellates the whole brain into 280 anatomical regions based on JHU-atlas in 50 (sec/case).**
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1fmfkxxZjChExnl5cHITYkNYgTu3MZ7Ql#scrollTo=xwZxyL5ewVNF)
@@ -51,49 +89,63 @@ pip install -r requirements.txt
 
 6. You can run OpenMAP-T1 !!
 
-## How to download the pretrained model.
+# How to download the pretrained model.
 You can get the pretrained model from this link.
 [Link of pretrained model](https://forms.office.com/Pages/ResponsePage.aspx?id=OPSkn-axO0eAP4b4rt8N7Iz6VabmlEBIhG4j3FiMk75UQUxBMkVPTzlIQTQ1UEZJSFY1NURDNzRERC4u)
 
 ![image](media/Download_pretrained.png)
 
-## How to use it
+# All Commands
 Using OpenMAP-T1 is straightforward. You can use it in any terminal on your linux system. We provide CPU as well as GPU support. Running on GPU is a lot faster though and should always be preferred. Here is a minimalistic example of how you can use OpenMAP-T1.
 
-### Basic Usage
+## Basic Usage
 Run the script from your terminal using:
 ```
+# Default
 python3 parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
+```
+```
+# Docker
+docker run --rm -it -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
 * **-i INPUT_FOLDER**: Specifies the folder containing the input brain MRI images.
 * **-o OUTPUT_FOLDER**: Defines the folder where the results will be saved. This folder will be created automatically if it does not exist.
 * **-m MODEL_FOLDER**: Indicates the folder containing the pretrained models for processing.
 
-### Using Spesific GPU
+## Optional Processing Steps
+OpenMAP-T1 now allows you to perform only specific processing steps using the following mutually exclusive flags:
+* **Only Face Cropping**: If you only want to perform face cropping and skip the rest of the processing steps, use:
+```
+# Default
+python3 parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-face-cropping
+```
+```
+# Docker
+docker run --rm -it -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-face-cropping
+```
+* Only Skull Stripping: If you want to perform only skull stripping and skip all other processing steps, use:
+```
+python3 parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-skull-stripping
+```
+```
+# Docker
+docker run --rm -it -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-skull-stripping
+```
+
+## Using Spesific GPU
 If you want to run the script on a specific GPU (for example, GPU 1), prepend the command with the ```CUDA_VISIBLE_DEVICES=N```.
 ```
 CUDA_VISIBLE_DEVICES=1 python3 parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
 If the error occurs for Windows users, please change ```Python3``` to ```Python```.
 
-### Optional Processing Steps
-OpenMAP-T1 now allows you to perform only specific processing steps using the following mutually exclusive flags:
-* **Only Face Cropping**: If you only want to perform face cropping and skip the rest of the processing steps, use:
-```
-python3 parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-face-cropping
-```
-* Only Skull Stripping: If you want to perform only skull stripping and skip all other processing steps, use:
-```
-python3 parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-skull-stripping
-```
-
-## Folder
+# Folder
 All images you input must be in NifTi format and have a .nii extension.
 ```
 INPUR_FOLDER/
-   ├ A.nii
-   ├ B.nii
-   ├ *.nii
+   ├ A.nii or .nii.gz
+   ├ B.nii or .nii.gz
+   ├ *.nii or .nii.gz
 
 OUTPUT_FOLDER/
    ├── A
@@ -141,7 +193,7 @@ MODEL_FOLDER/
       └ axial.pth
 ```
 
-## Supplementary information
+# Supplementary information
 ![supplementary_level](media/Multilevel.png)
 The OpenMAP-T1 parcellates the entire brain into five hierarchical structural levels, with the coarsest level comprising eight structures and the finest level comprising 280 structures.
 
@@ -150,14 +202,14 @@ The OpenMAP-T1 parcellates the entire brain into five hierarchical structural le
 *  For additional visualization and detailed analysis, [ROIEditor](https://www.mristudio.org/installation.html) is also an excellent tool. ROIEditor is a free, open-source application specifically designed for creating and editing regions of interest (ROIs) in medical imaging. Its user-friendly interface facilitates precise segmentation and fine-tuning, making it ideal for isolating and analyzing specific regions on parcellation maps generated by OpenMAP-T1.
 
 
-## FAQ
+# FAQ
 * **How much GPU memory do I need to run OpenMAP-T1?** <br>
 We ran all our experiments on NVIDIA RTX3090 GPUs with 24 GB memory. For inference you will need less, but since inference in implemented by exploiting the fully convolutional nature of CNNs the amount of memory required depends on your image. Typical image should run with less than 4 GB of GPU memory consumption. If you run into out of memory problems please check the following: 1) Make sure the voxel spacing of your data is correct and 2) Ensure your MRI image only contains the head region.
 
 * **Will you provide the training code as well?** <br>
 No. The training code is tightly wound around the data which we cannot make public.
 
-## Citation
+# Citation
 ```
 @techreport{nishimaki2024openmap,
   title={OpenMAP-T1: A Rapid Deep-Learning Approach to Parcellate 280 Anatomical Regions to Cover the Whole Brain},
@@ -167,7 +219,7 @@ No. The training code is tightly wound around the data which we cannot make publ
 }
 ```
 
-## Related Research
+# Related Research
 The following studies have utilized OpenMAP-T1 for advanced segmentation and analysis in T1-weighted MRI. 
 1. **[Acceleration of Brain Atrophy and Progression From Normal Cognition to Mild Cognitive Impairment](https://jamanetwork.com/journals/jamanetworkopen/fullarticle/2825474)**  
    *Authors:* Yuto Uchida, MD, PhD; Kei Nishimaki; Anja Soldan, PhD; Abhay Moghekar, MBBS; Marilyn Albert, PhD; Kenichi Oishi, MD, PhD;  
