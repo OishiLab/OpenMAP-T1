@@ -203,6 +203,15 @@ The OpenMAP-T1 parcellates the entire brain into five hierarchical structural le
 
 
 # FAQ
+* **What are the contributions of OpenMAP-T1?**<br>
+For GPUs, OpenMAP-T1 processes T1-weighted images in just 1–2 minutes. Even on CPUs, processing completes in roughly 30 minutes. Moreover, OpenMAP-T1 is highly robust against variations in imaging environments and brain atrophy.
+
+* **Which atlas is used in OpenMAP-T1?**<br>
+OpenMAP-T1 employs the JHU atlas.
+
+* **Can OpenMAP-T1 be used with 2D imaging data?**<br>
+Although not included in the paper, our private tests indicate that OpenMAP-T1 can also work with 2D imaging. However, using 2D data might result in some regions being lost.
+
 * **How much GPU memory do I need to run OpenMAP-T1?** <br>
 We ran all our experiments on NVIDIA RTX3090 GPUs with 24 GB memory. For inference you will need less, but since inference in implemented by exploiting the fully convolutional nature of CNNs the amount of memory required depends on your image. Typical image should run with less than 4 GB of GPU memory consumption. If you run into out of memory problems please check the following: 1) Make sure the voxel spacing of your data is correct and 2) Ensure your MRI image only contains the head region.
 
