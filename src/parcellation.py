@@ -8,6 +8,7 @@ from nibabel import processing
 from tqdm import tqdm as std_tqdm
 
 tqdm = partial(std_tqdm, dynamic_ncols=True)
+
 import nibabel as nib
 import numpy as np
 
@@ -197,7 +198,6 @@ def main():
 
         # Clean up temporary files
         del odata, data
-        gaga
     return
 
 
