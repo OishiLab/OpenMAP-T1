@@ -1,4 +1,4 @@
-![OpenMAP_Logo_with_name](https://github.com/OishiLab/OpenMAP-T1/assets/64403395/9ce68146-eeb7-4ce0-bd49-73f1c7ded4d8)
+![Explain](media/Explain.png)
 
 # OpenMAP-T1
 ![Figure3](media/Representative.png)
@@ -20,16 +20,142 @@ The Richman Family Precision Medicine Center of Excellence in Alzheimer's Diseas
 Paper: https://onlinelibrary.wiley.com/doi/full/10.1002/hbm.70063<br>
 Submitted for publication in the **Human Brain Mapping**<br>
 
-## Version
-| Version | Release Date  | Link                                               | Speed       |
-|---------|---------------|----------------------------------------------------|-------------|
-| 2.0.0   | January  2024 | https://github.com/OishiLab/OpenMAP-T1/tree/v2.0.0 | 50 sec/case |
-| 1.0.0   | December 2023 | https://github.com/OishiLab/OpenMAP-T1/tree/v1.0.0 | 90 sec/case |
+## Installation Instruction
+**OpenMAP-T1-V2 parcellates the whole brain into 280 anatomical regions based on JHU-atlas in 50 (sec/case).**
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1fmfkxxZjChExnl5cHITYkNYgTu3MZ7Ql#scrollTo=xwZxyL5ewVNF)
+
+0. install python and make virtual environment<br>
+Python 3.9 or later is recommended.
+
+1. Clone this repository, and go into the repository:
+```
+git clone https://github.com/OishiLab/OpenMAP-T1.git
+cd OpenMAP-T1
+```
+3. Please install PyTorch compatible with your environment.<br>
+https://pytorch.org/
+
+Once you select your environment, the required commands will be displayed.
+
+![image](media/PyTorch.png)
+
+If you want to install an older Pytorch environment, you can download it from the link below.<br>
+https://pytorch.org/get-started/previous-versions/
+
+4.  Install libraries other than PyTorch:
+```
+pip install -r requirements.txt
+```
+5. Please apply and download the pre-trained model from the link below and upload it to your server.
+
+6. You can run OpenMAP-T1 !!
+
+## How to download the pretrained model.
+You can get the pretrained model from this link.
+[Link of pretrained model](https://forms.office.com/Pages/ResponsePage.aspx?id=OPSkn-axO0eAP4b4rt8N7Iz6VabmlEBIhG4j3FiMk75UQUxBMkVPTzlIQTQ1UEZJSFY1NURDNzRERC4u)
+
+![image](media/Download_pretrained.png)
+
+## How to use it
+Using OpenMAP-T1 is straightforward. You can use it in any terminal on your linux system. We provide CPU as well as GPU support. Running on GPU is a lot faster though and should always be preferred. Here is a minimalistic example of how you can use OpenMAP-T1.
+
+### Basic Usage
+Run the script from your terminal using:
+```
+python3 parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
+```
+* **-i INPUT_FOLDER**: Specifies the folder containing the input brain MRI images.
+* **-o OUTPUT_FOLDER**: Defines the folder where the results will be saved. This folder will be created automatically if it does not exist.
+* **-m MODEL_FOLDER**: Indicates the folder containing the pretrained models for processing.
+
+### Using Spesific GPU
+If you want to run the script on a specific GPU (for example, GPU 1), prepend the command with the ```CUDA_VISIBLE_DEVICES=N```.
+```
+CUDA_VISIBLE_DEVICES=1 python3 parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
+```
+If the error occurs for Windows users, please change ```Python3``` to ```Python```.
+
+### Optional Processing Steps
+OpenMAP-T1 now allows you to perform only specific processing steps using the following mutually exclusive flags:
+* **Only Face Cropping**: If you only want to perform face cropping and skip the rest of the processing steps, use:
+```
+python3 parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-face-cropping
+```
+* Only Skull Stripping: If you want to perform only skull stripping and skip all other processing steps, use:
+```
+python3 parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-skull-stripping
+```
+
+## Folder
+All images you input must be in NifTi format and have a .nii extension.
+```
+INPUR_FOLDER/
+   ├ A.nii
+   ├ B.nii
+   ├ *.nii
+
+OUTPUT_FOLDER/
+   ├── A
+   │   ├── cropped
+   │   │   ├── A_cropped_mask.nii
+   │   │   └── A_cropped.nii
+   │   ├── csv
+   │   │   ├── A_Type1_Level1.csv
+   │   │   ├── A_Type1_Level2.csv
+   │   │   ├── A_Type1_Level3.csv
+   │   │   ├── A_Type1_Level4.csv
+   │   │   ├── A_Type1_Level5.csv
+   │   │   ├── A_Type2_Level1.csv
+   │   │   ├── A_Type2_Level2.csv
+   │   │   ├── A_Type2_Level3.csv
+   │   │   ├── A_Type2_Level4.csv
+   │   │   └── A_Type2_Level5.csv
+   │   ├── original
+   │   │   ├── A_N4.nii
+   │   │   └── A.nii
+   │   ├── parcellated
+   │   │   ├── A_Type1_Level1.nii
+   │   │   ├── A_Type1_Level2.nii
+   │   │   ├── A_Type1_Level3.nii
+   │   │   ├── A_Type1_Level4.nii
+   │   │   ├── A_Type1_Level5.nii
+   │   │   ├── A_Type2_Level1.nii
+   │   │   ├── A_Type2_Level2.nii
+   │   │   ├── A_Type2_Level3.nii
+   │   │   ├── A_Type2_Level4.nii
+   │   │   └── A_Type2_Level5.nii
+   │   └── stripped
+   │       ├── A_stripped_mask.nii
+   │       └── A_stripped.nii
+   ├── ...
+
+MODEL_FOLDER/
+   ├ SSNet/SSNet.pth
+   ├ PNet
+   |   ├ coronal.pth
+   |   ├ sagittal.pth
+   |   └ axial.pth
+   └ HNet/
+      ├ coronal.pth
+      └ axial.pth
+```
 
 ## Supplementary information
 ![supplementary_level](media/Multilevel.png)
-The OpenMAP-T1 parcellate the entire brain into five hierarchical structural levels, with the coarsest level comprising eight structures and the finest level comprising 280 structures. Changing these levels is easy using [ROIEditor](https://www.mristudio.org/installation.html).
+The OpenMAP-T1 parcellates the entire brain into five hierarchical structural levels, with the coarsest level comprising eight structures and the finest level comprising 280 structures.
 
+* For additional visualization and detailed analysis, you can also utilize [3D Slicer](https://www.slicer.org/). 3D Slicer is a free, open-source platform for medical image computing that provides robust tools for segmentation, registration, and 3D visualization, making it an excellent choice for exploring the parcellation maps generated by OpenMAP-T1.
+
+*  For additional visualization and detailed analysis, [ROIEditor](https://www.mristudio.org/installation.html) is also an excellent tool. ROIEditor is a free, open-source application specifically designed for creating and editing regions of interest (ROIs) in medical imaging. Its user-friendly interface facilitates precise segmentation and fine-tuning, making it ideal for isolating and analyzing specific regions on parcellation maps generated by OpenMAP-T1.
+
+
+## FAQ
+* **How much GPU memory do I need to run OpenMAP-T1?** <br>
+We ran all our experiments on NVIDIA RTX3090 GPUs with 24 GB memory. For inference you will need less, but since inference in implemented by exploiting the fully convolutional nature of CNNs the amount of memory required depends on your image. Typical image should run with less than 4 GB of GPU memory consumption. If you run into out of memory problems please check the following: 1) Make sure the voxel spacing of your data is correct and 2) Ensure your MRI image only contains the head region.
+
+* **Will you provide the training code as well?** <br>
+No. The training code is tightly wound around the data which we cannot make public.
 
 ## Citation
 ```
