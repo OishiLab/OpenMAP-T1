@@ -112,8 +112,9 @@ docker run --rm -it -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER
 * **-o OUTPUT_FOLDER**: Defines the folder where the results will be saved. This folder will be created automatically if it does not exist.
 * **-m MODEL_FOLDER**: Indicates the folder containing the pretrained models for processing.
 
-## Optional Processing Steps
-OpenMAP-T1 now allows you to perform only specific processing steps using the following mutually exclusive flags:
+## Optional Faster Processing Steps
+OpenMAP-T1 now allows you to perform only specific processing steps using the following mutually exclusive flags. By specifying these options, OpenMAP-T1 skips unnecessary processing steps, which can significantly reduce overall processing time.
+
 * **Only Face Cropping**: If you only want to perform face cropping and skip the rest of the processing steps, use:
 ```
 # Default
@@ -123,7 +124,7 @@ python3 parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-
 # Docker
 docker run --rm -it -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-face-cropping
 ```
-* Only Skull Stripping: If you want to perform only skull stripping and skip all other processing steps, use:
+* **Only Skull Stripping**: If you want to perform only skull stripping and skip all other processing steps, use the skull stripping flag. Note that skull stripping requires face cropping as a prerequisite, so face cropping is not considered one of the "other processing" steps that are skipped, use:
 ```
 python3 parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-skull-stripping
 ```
