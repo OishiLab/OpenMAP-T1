@@ -102,7 +102,7 @@ Using OpenMAP-T1 is straightforward. You can use it in any terminal on your linu
 Run the script from your terminal using:
 ```
 # Default
-python3 parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
+python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
 ```
 # Docker
@@ -184,6 +184,7 @@ OUTPUT_FOLDER/
    ├── ...
 
 MODEL_FOLDER/
+   ├ CNet/CNet.pth   
    ├ SSNet/SSNet.pth
    ├ PNet
    |   ├ coronal.pth
@@ -213,10 +214,13 @@ OpenMAP-T1 employs the JHU atlas.
 * **Can OpenMAP-T1 be used with 2D imaging data?**<br>
 Although not included in the paper, our private tests indicate that OpenMAP-T1 can also work with 2D imaging. However, using 2D data might result in some regions being lost.
 
-* **How much GPU memory do I need to run OpenMAP-T1?** <br>
+* **How much GPU memory do I need to run OpenMAP-T1?**<br>
 We ran all our experiments on NVIDIA RTX3090 GPUs with 24 GB memory. For inference you will need less, but since inference in implemented by exploiting the fully convolutional nature of CNNs the amount of memory required depends on your image. Typical image should run with less than 4 GB of GPU memory consumption. If you run into out of memory problems please check the following: 1) Make sure the voxel spacing of your data is correct and 2) Ensure your MRI image only contains the head region.
 
-* **Will you provide the training code as well?** <br>
+* **What is the difference between Type 1 and Type 2?**<br>
+Type 1 outputs the brain surface structure by separating it into the cortex and the subcortical white matter. Typically, Type 1 is used in most cases. In contrast, Type 2 outputs the cortex and the subcortical white matter as a single ROI. Type 2 may be employed when it is desirable to minimize the number of ROIs in data analysis or when quantifying parameters such as regional cerebral blood flow using low-resolution PET images.
+
+* **Will you provide the training code as well?**<br>
 No. The training code is tightly wound around the data which we cannot make public.
 
 # Citation
