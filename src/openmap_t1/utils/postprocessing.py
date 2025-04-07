@@ -1,11 +1,16 @@
+import pathlib
 import pickle
+from typing import Optional
 
 import numpy as np
 import torch
 
 
-def postprocessing(parcellated, separated, shift, device):
-    with open("utils/split_map.pkl", "rb") as tf:
+def postprocessing(
+    parcellated, separated, shift, device, split_map_path: Optional[pathlib.Path] = None
+):
+    split_map_path = split_map_path or pathlib.Path(__file__).parent / "split_map.pkl"
+    with split_map_path.open("rb") as tf:
         dictionary = pickle.load(tf)
 
     pmap = torch.tensor(parcellated.astype("int16"), requires_grad=False).to(device)
