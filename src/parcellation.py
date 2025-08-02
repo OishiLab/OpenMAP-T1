@@ -47,7 +47,7 @@ def create_parser():
         required=True,
         help="Folder of pretrained models. Indicates the location of the pretrained models to be used for processing.",
     )
-    
+
     # Create a mutually exclusive group for processing modes.
     # If one of these options is specified, only that processing step is performed and the remaining steps are skipped.
     group = parser.add_mutually_exclusive_group()
@@ -61,7 +61,7 @@ def create_parser():
         action="store_true",
         help="Perform only skull stripping. If specified, only skull stripping will be executed and all other processing steps will be skipped.",
     )
-    
+
     args = parser.parse_args()
     print("Parsed arguments:", args)
     return args
@@ -129,75 +129,76 @@ def main():
         print(f"Input directory {opt.i} exists.")
 
     # Get the list of input files
-    pathes = sorted(
-        sorted(glob.glob(os.path.join(opt.i, "**/*.nii"), recursive=True)) +
-        sorted(glob.glob(os.path.join(opt.i, "**/*.nii.gz"), recursive=True))
-    )
+    pathes = sorted(sorted(glob.glob(os.path.join(opt.i, "**/*.nii"), recursive=True)) + sorted(glob.glob(os.path.join(opt.i, "**/*.nii.gz"), recursive=True)))
     print(f"Found {len(pathes)} NIfTI files in {opt.i}")
 
     for path in tqdm(pathes):
-        # Extract the base name of the file (without extension)
-        basename = os.path.splitext(os.path.basename(path))[0]
-        if basename.endswith(".nii"):
-            basename = os.path.splitext(basename)[0]
+        try:
+            # Extract the base name of the file (without extension)
+            basename = os.path.splitext(os.path.basename(path))[0]
+            if basename.endswith(".nii"):
+                basename = os.path.splitext(basename)[0]
 
-        # Create the output directory for the current file
-        output_dir = os.path.join(opt.o, basename)
-        os.makedirs(output_dir, exist_ok=True)
+            # Create the output directory for the current file
+            output_dir = os.path.join(opt.o, basename)
+            os.makedirs(output_dir, exist_ok=True)
 
-        # Load the input image, convert it to canonical form, and squeeze it
-        odata = nib.squeeze_image(nib.as_closest_canonical(nib.load(path)))
+            # Load the input image, convert it to canonical form, and squeeze it
+            odata = nib.squeeze_image(nib.as_closest_canonical(nib.load(path)))
 
-        # Create a new NIfTI image with the data converted to float32
-        nii = nib.Nifti1Image(odata.get_fdata().astype(np.float32), affine=odata.affine)
+            # Create a new NIfTI image with the data converted to float32
+            nii = nib.Nifti1Image(odata.get_fdata().astype(np.float32), affine=odata.affine)
 
-        # Save the new NIfTI image to the output directory
-        os.makedirs(os.path.join(output_dir, "original"), exist_ok=True)
-        nib.save(nii, os.path.join(output_dir, f"original/{basename}.nii"))
+            # Save the new NIfTI image to the output directory
+            os.makedirs(os.path.join(output_dir, "original"), exist_ok=True)
+            nib.save(nii, os.path.join(output_dir, f"original/{basename}.nii"))
 
-        # Preprocess the input image
-        odata, data = preprocessing(path, output_dir, basename)
+            # Preprocess the input image
+            odata, data = preprocessing(path, output_dir, basename)
 
-        # Crop the image using the cropping network
-        cropped = cropping(output_dir, basename, odata, data, cnet, device)
+            # Crop the image using the cropping network
+            cropped = cropping(output_dir, basename, odata, data, cnet, device)
 
-        if opt.only_face_cropping:
+            if opt.only_face_cropping:
+                continue
+
+            # Strip the image using the stripping network
+            stripped, shift = stripping(output_dir, basename, cropped, odata, data, ssnet, device)
+
+            if opt.only_skull_stripping:
+                continue
+
+            # Parcellate the stripped image using the parcellation networks
+            parcellated = parcellation(stripped, pnet_c, pnet_s, pnet_a, device)
+
+            # Separate the hemispheres using the hemisphere networks
+            separated = hemisphere(stripped, hnet_c, hnet_a, device)
+
+            # Postprocess the parcellated and separated image
+            output = postprocessing(parcellated, separated, shift, device)
+
+            # Generate a CSV file with volume information and save it
+            df = make_csv(output, output_dir, basename)
+
+            # Create a new NIfTI image with the processed output and save it
+            nii = nib.Nifti1Image(output.astype(np.uint16), affine=data.affine)
+            header = odata.header
+            nii = processing.conform(
+                nii,
+                out_shape=(header["dim"][1], header["dim"][2], header["dim"][3]),
+                voxel_size=(header["pixdim"][1], header["pixdim"][2], header["pixdim"][3]),
+                order=0,
+            )
+            os.makedirs(os.path.join(output_dir, "parcellated"), exist_ok=True)
+            nib.save(nii, os.path.join(output_dir, f"parcellated/{basename}_Type1_Level5.nii"))
+
+            create_parcellated_images(output, output_dir, basename, odata, data)
+
+            # Clean up temporary files
+            del odata, data
+        except Exception as e:
+            print(f"Error processing {path}: {e}")
             continue
-
-        # Strip the image using the stripping network
-        stripped, shift = stripping(output_dir, basename, cropped, odata, data, ssnet, device)
-
-        if opt.only_skull_stripping:
-            continue
-        
-        # Parcellate the stripped image using the parcellation networks
-        parcellated = parcellation(stripped, pnet_c, pnet_s, pnet_a, device)
-
-        # Separate the hemispheres using the hemisphere networks
-        separated = hemisphere(stripped, hnet_c, hnet_a, device)
-
-        # Postprocess the parcellated and separated image
-        output = postprocessing(parcellated, separated, shift, device)
-
-        # Generate a CSV file with volume information and save it
-        df = make_csv(output, output_dir, basename)
-
-        # Create a new NIfTI image with the processed output and save it
-        nii = nib.Nifti1Image(output.astype(np.uint16), affine=data.affine)
-        header = odata.header
-        nii = processing.conform(
-            nii,
-            out_shape=(header["dim"][1], header["dim"][2], header["dim"][3]),
-            voxel_size=(header["pixdim"][1], header["pixdim"][2], header["pixdim"][3]),
-            order=0,
-        )
-        os.makedirs(os.path.join(output_dir, "parcellated"), exist_ok=True)
-        nib.save(nii, os.path.join(output_dir, f"parcellated/{basename}_Type1_Level5.nii"))
-
-        create_parcellated_images(output, output_dir, basename, odata, data)
-
-        # Clean up temporary files
-        del odata, data
     return
 
 
