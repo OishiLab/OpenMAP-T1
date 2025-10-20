@@ -5,74 +5,67 @@ import torch
 from utils.network import UNet
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, ".."))
 
 
 def load_model(opt, device):
     """
-    This function loads multiple pre-trained models and sets them to evaluation mode.
-    The models loaded are:
-    1. CNet: A U-Net model for some specific task.
-    2. SSNet: Another U-Net model for a different task.
-    3. PNet coronal: A U-Net model for coronal plane predictions.
-    4. PNet sagittal: A U-Net model for sagittal plane predictions.
-    5. PNet axial: A U-Net model for axial plane predictions.
-    6. HNet coronal: A U-Net model for coronal plane predictions with different input/output channels.
-    7. HNet axial: A U-Net model for axial plane predictions with different input/output channels.
+    Load and initialize the pretrained neural network models required for the OpenMAP-T1 pipeline.
 
-    Parameters:
-    opt (object): An options object containing model paths.
-    device (torch.device): The device on which to load the models (CPU or GPU).
+    This function loads four U-Net–based models from the specified pretrained model directory.
+    Each model is moved to the target device (CPU, CUDA, or MPS) and set to evaluation mode.
+
+    Models loaded:
+        1. **CNet (Cropping Network)** — Performs face cropping and brain localization.
+        2. **SSNet (Skull Stripping Network)** — Removes non-brain tissues from MRI scans.
+        3. **PNet (Parcellation Network)** — Predicts fine-grained anatomical labels across 142 regions.
+        4. **HNet (Hemisphere Network)** — Segments the brain into hemispheric masks (left/right/other).
+
+    Args:
+        opt (argparse.Namespace): Parsed command-line arguments containing the pretrained model directory path (`opt.m`).
+        device (torch.device): Target device on which to load models (e.g., `torch.device('cuda')`).
 
     Returns:
-    tuple: A tuple containing all the loaded models.
+        tuple:
+            A tuple containing four initialized and evaluation-ready models:
+            (cnet, ssnet, pnet, hnet).
     """
-    if os.path.isabs(opt.m):
-        model_dir = opt.m
-    else:
-        model_dir = os.path.join(PROJECT_ROOT, opt.m)
+    model_dir = opt.m  # Base directory where pretrained model weights are stored
 
-    # Load CNet model
-    cnet = UNet(1, 1)
+    # --------------------------
+    # Load CNet (Cropping Network)
+    # --------------------------
+    # Input: 3-channel (neighboring slices), Output: 1-channel binary mask
+    cnet = UNet(3, 1)
     cnet.load_state_dict(torch.load(os.path.join(model_dir, "CNet", "CNet.pth"), weights_only=True))
     cnet.to(device)
     cnet.eval()
 
-    # Load SSNet model
-    ssnet = UNet(1, 1)
+    # ------------------------------
+    # Load SSNet (Skull Stripping Network)
+    # ------------------------------
+    # Input: 3-channel (neighboring slices), Output: 1-channel brain mask
+    ssnet = UNet(3, 1)
     ssnet.load_state_dict(torch.load(os.path.join(model_dir, "SSNet", "SSNet.pth"), weights_only=True))
     ssnet.to(device)
     ssnet.eval()
 
-    # Load PNet coronal model
-    pnet_c = UNet(3, 142)
-    pnet_c.load_state_dict(torch.load(os.path.join(model_dir, "PNet", "coronal.pth"), weights_only=True))
-    pnet_c.to(device)
-    pnet_c.eval()
+    # -----------------------------
+    # Load PNet (Parcellation Network)
+    # -----------------------------
+    # Input: 4 channels (multi-modal or augmented context), Output: 142 anatomical regions
+    pnet = UNet(4, 142)
+    pnet.load_state_dict(torch.load(os.path.join(model_dir, "PNet", "PNet.pth"), weights_only=True))
+    pnet.to(device)
+    pnet.eval()
 
-    # Load PNet sagittal model
-    pnet_s = UNet(3, 142)
-    pnet_s.load_state_dict(torch.load(os.path.join(model_dir, "PNet", "sagittal.pth"), weights_only=True))
-    pnet_s.to(device)
-    pnet_s.eval()
+    # -----------------------------
+    # Load HNet (Hemisphere Network)
+    # -----------------------------
+    # Input: 3 channels, Output: 3-class hemisphere mask (left, right, background)
+    hnet = UNet(3, 3)
+    hnet.load_state_dict(torch.load(os.path.join(model_dir, "HNet", "HNet.pth"), weights_only=True))
+    hnet.to(device)
+    hnet.eval()
 
-    # Load PNet axial model
-    pnet_a = UNet(3, 142)
-    pnet_a.load_state_dict(torch.load(os.path.join(model_dir, "PNet", "axial.pth"), weights_only=True))
-    pnet_a.to(device)
-    pnet_a.eval()
-
-    # Load HNet coronal model
-    hnet_c = UNet(1, 3)
-    hnet_c.load_state_dict(torch.load(os.path.join(model_dir, "HNet", "coronal.pth"), weights_only=True))
-    hnet_c.to(device)
-    hnet_c.eval()
-
-    # Load HNet axial model
-    hnet_a = UNet(1, 3)
-    hnet_a.load_state_dict(torch.load(os.path.join(model_dir, "HNet", "axial.pth"), weights_only=True))
-    hnet_a.to(device)
-    hnet_a.eval()
-
-    # Return all loaded models
-    return cnet, ssnet, pnet_c, pnet_s, pnet_a, hnet_c, hnet_a
+    # Return all loaded, device-initialized, and evaluation-ready models
+    return cnet, ssnet, pnet, hnet

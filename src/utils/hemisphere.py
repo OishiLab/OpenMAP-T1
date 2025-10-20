@@ -1,92 +1,105 @@
+import numpy as np
 import torch
 from scipy.ndimage import binary_dilation
 
 from utils.functions import normalize
 
 
-def separate(voxel, model, device, mode):
+def separate(voxel, model, device):
     """
-    Separates the voxel data based on the specified mode and processes it using the given model.
+    Perform slice-wise inference using a hemisphere separation model.
+
+    This function runs a 2.5D neural network across slices of a 3D input volume.
+    Each slice is processed in the context of its immediate neighbors (previous
+    and next slices) to improve spatial coherence. The model outputs a
+    three-class probability map distinguishing background, left hemisphere,
+    and right hemisphere regions.
 
     Args:
-        voxel (list or numpy.ndarray): The input voxel data to be processed.
-        model (torch.nn.Module): The neural network model used for processing the voxel data.
-        device (torch.device): The device (CPU or GPU) on which the model and data are loaded.
-        mode (str): The mode of separation, either 'c' for coronal or 'a' for axial.
+        voxel (numpy.ndarray): Input voxel data of shape (N, 224, 224).
+        model (torch.nn.Module): Trained hemisphere segmentation model (U-Net architecture).
+        device (torch.device): Computational device (CPU, CUDA, or MPS).
 
     Returns:
-        torch.Tensor: The processed output tensor with shape (stack[0], 3, stack[1], stack[2]).
+        torch.Tensor: A tensor of shape (224, 3, 224, 224) containing softmax
+        probabilities for each class at every voxel.
     """
-    if mode == "c":
-        # Set the stack dimensions for coronal mode
-        stack = (224, 192, 192)
-    elif mode == "a":
-        # Set the stack dimensions for axial mode
-        stack = (192, 224, 192)
-
-    # Set the model to evaluation mode
     model.eval()
 
-    # Disable gradient calculation for inference
+    # Pad the volume by one slice on both ends to provide full 3-slice context
+    voxel = np.pad(voxel, [(1, 1), (0, 0), (0, 0)], "constant", constant_values=voxel.min())
+
     with torch.inference_mode():
-        # Initialize an output tensor with the specified stack dimensions
-        output = torch.zeros(stack[0], 3, stack[1], stack[2]).to(device)
+        # Output tensor for storing model predictions (class probabilities)
+        box = torch.zeros(224, 3, 224, 224)
 
-        # Iterate over each slice in the voxel data
-        for i, v in enumerate(voxel):
-            # Reshape the slice and convert it to a tensor
-            image = torch.tensor(v.reshape(1, 1, stack[1], stack[2]))
-            # Move the tensor to the specified device
-            image = image.to(device)
-            # Perform a forward pass through the model and apply softmax
-            x_out = torch.softmax(model(image), 1).detach()
-            # Store the output in the corresponding slice of the output tensor
-            output[i] = x_out
+        # Iterate slice-by-slice along the first axis
+        for i in range(1, 225):
+            image = np.stack([voxel[i - 1], voxel[i], voxel[i + 1]])
+            image = torch.tensor(image.reshape(1, 3, 224, 224)).to(device)
 
-        # Return the processed output tensor
-        return output
+            # Model inference with softmax normalization across classes
+            x_out = torch.softmax(model(image), dim=1).detach().cpu()
+            box[i - 1] = x_out
+
+        # Return complete 3D probability map
+        return box.reshape(224, 3, 224, 224)
 
 
-def hemisphere(voxel, hnet_c, hnet_a, device):
+def hemisphere(voxel, hnet, device):
     """
-    Processes a voxel image to separate and dilate hemispheres using neural networks.
+    Perform hemisphere separation on a brain MRI volume using a deep learning model.
+
+    The function predicts left and right hemisphere regions from a normalized
+    3D MRI volume using multi-view inference (coronal and transverse planes).
+    Predictions from both orientations are fused to improve robustness. The final
+    label map is post-processed using binary dilation to smooth and expand hemisphere
+    boundaries, ensuring anatomical continuity.
 
     Args:
-        voxel (torch.Tensor): The input voxel image tensor.
-        hnet_c (torch.nn.Module): The neural network model for coronal separation.
-        hnet_a (torch.nn.Module): The neural network model for transverse separation.
-        device (torch.device): The device to run the neural networks on (e.g., 'cpu' or 'cuda').
+        voxel (numpy.ndarray): Input 3D brain volume to be separated into hemispheres.
+        hnet (torch.nn.Module): Trained hemisphere segmentation model.
+        device (torch.device): Target device for computation (e.g., 'cuda', 'cpu').
 
     Returns:
-        numpy.ndarray: The processed and dilated mask of the hemispheres.
+        numpy.ndarray: A 3D integer array representing the hemisphere mask:
+            - 0: Background
+            - 1: Left hemisphere
+            - 2: Right hemisphere
     """
-    # Normalize the voxel data
-    voxel = normalize(voxel)
+    # Normalize voxel intensities for inference
+    voxel = normalize(voxel, "hemisphere")
 
-    # Transpose the voxel data for coronal and transverse views
+    # Prepare different anatomical orientations for inference
     coronal = voxel.transpose(1, 2, 0)
     transverse = voxel.transpose(2, 1, 0)
 
-    # Separate the coronal and transverse views using the respective models
-    out_c = separate(coronal, hnet_c, device, "c").permute(1, 3, 0, 2)
-    out_a = separate(transverse, hnet_a, device, "a").permute(1, 3, 2, 0)
+    # Perform inference for both coronal and transverse orientations
+    out_c = separate(coronal, hnet, device).permute(1, 3, 0, 2)
+    out_a = separate(transverse, hnet, device).permute(1, 3, 2, 0)
 
-    # Combine the outputs from both views
+    # Fuse both outputs by summing class probabilities
     out_e = out_c + out_a
 
-    # Get the final output by taking the argmax along the first dimension
-    out_e = torch.argmax(out_e, 0).cpu().numpy()
+    # Determine final class labels (0, 1, or 2) by selecting the most probable class
+    out_e = torch.argmax(out_e, dim=0).cpu().numpy()
 
-    # Clear the CUDA cache
+    # Release any residual GPU memory
     torch.cuda.empty_cache()
 
-    # Perform binary dilation on the mask for class 1
+    # --------------------------
+    # Post-processing step: binary dilation
+    # --------------------------
+
+    # First, dilate the left hemisphere (class 1)
     dilated_mask_1 = binary_dilation(out_e == 1, iterations=5).astype("int16")
+    # Preserve right hemisphere voxels from the original prediction
     dilated_mask_1[out_e == 2] = 2
 
-    # Perform binary dilation on the mask for class 2
+    # Then, dilate the right hemisphere (class 2) symmetrically
     dilated_mask_2 = binary_dilation(dilated_mask_1 == 2, iterations=5).astype("int16") * 2
+    # Restore left hemisphere voxels to prevent overwriting
     dilated_mask_2[dilated_mask_1 == 1] = 1
 
-    # Return the final dilated mask
+    # Return the final dilated and fused hemisphere mask
     return dilated_mask_2
