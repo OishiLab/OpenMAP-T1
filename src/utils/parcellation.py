@@ -1,100 +1,137 @@
 import numpy as np
 import torch
+from tqdm import tqdm
 
 from utils.functions import normalize
 
 
-def parcellate(voxel, model, device, mode):
+def parcellate(
+    voxel: np.ndarray,
+    model: torch.nn.Module,
+    device: torch.device,
+    mode: str,
+    n_classes: int = 142,
+) -> torch.Tensor:
     """
-    Parcellates a given voxel volume using a specified model and mode.
+    Perform 2.5D neural network inference for brain parcellation along a specific anatomical plane.
+
+    The function processes a 3D volume slice by slice using a 3-slice context window (previous,
+    current, next). An additional constant-valued fourth channel encodes the orientation mode
+    (Axial, Coronal, or Sagittal), allowing the network to distinguish the processing plane.
 
     Args:
-        voxel (numpy.ndarray): The input voxel volume to be parcellated.
-        model (torch.nn.Module): The neural network model used for parcellation.
-        device (torch.device): The device (CPU or GPU) on which the model is run.
-        mode (str): The mode of parcellation. Can be 'c', 's', or 'a', which determines the stack dimensions.
+        voxel (numpy.ndarray): 3D voxel data of shape (N, 224, 224), representing a single anatomical view.
+        model (torch.nn.Module): The trained PyTorch parcellation model.
+        device (torch.device): Device for inference (CPU, CUDA, or MPS).
+        mode (str): The anatomical plane used for inference. Must be one of {'Axial', 'Coronal', 'Sagittal'}.
+        n_classes (int, optional): Number of output anatomical labels. Defaults to 142.
 
     Returns:
-        torch.Tensor: The parcellated voxel volume.
+        torch.Tensor: A tensor of shape (224, n_classes, 224, 224) containing softmax probabilities
+        for each class at each voxel position.
     """
-    if mode == "c":
-        stack = (224, 192, 192)
-    elif mode == "s":
-        stack = (192, 224, 192)
-    elif mode == "a":
-        stack = (192, 224, 192)
-
-    # Set the model to evaluation mode
     model.eval()
+    voxel = voxel.astype(np.float32)
 
-    # Pad the voxel volume to handle edge cases
-    voxel = np.pad(voxel, [(1, 1), (0, 0), (0, 0)], "constant", constant_values=voxel.min())
+    # Set the constant value for the 4th channel to encode plane orientation
+    if mode == "Axial":
+        section_value = 1.0
+    elif mode == "Coronal":
+        section_value = -1.0
+    elif mode == "Sagittal":
+        section_value = 0.0
+    else:
+        raise ValueError("mode must be one of {'Axial','Coronal','Sagittal'}")
 
-    # Disable gradient calculation for inference
+    # Pad one slice on both ends to safely allow 3-slice context
+    voxel_pad = np.pad(
+        voxel,
+        [(1, 1), (0, 0), (0, 0)],
+        mode="constant",
+        constant_values=float(voxel.min()),
+    )
+
+    # Initialize a container for the network outputs (CPU for accumulation)
+    box = torch.empty((224, n_classes, 224, 224), dtype=torch.float32, device="cpu")
+
+    # Inference loop: iterate over slices and feed triplets to the model
     with torch.inference_mode():
-        # Initialize an empty tensor to store the parcellation results
-        box = torch.zeros(stack[0], 142, stack[1], stack[2])
+        for i in range(1, 225):
+            prev_ = voxel_pad[i - 1]
+            curr_ = voxel_pad[i]
+            next_ = voxel_pad[i + 1]
 
-        # Iterate over each slice in the stack dimension
-        for i in range(1, stack[0] + 1):
-            # Stack three consecutive slices to form the input image
-            image = np.stack([voxel[i - 1], voxel[i], voxel[i + 1]])
-            image = torch.tensor(image.reshape(1, 3, stack[1], stack[2]))
-            image = image.to(device)
+            # Build 4-channel input (3 context slices + orientation encoding)
+            four_ch = np.empty((4, 224, 224), dtype=np.float32)
+            four_ch[0] = prev_
+            four_ch[1] = curr_
+            four_ch[2] = next_
+            four_ch[3].fill(section_value)
 
-            # Perform the forward pass through the model and apply softmax
-            x_out = torch.softmax(model(image), 1).detach().cpu()
+            inp = torch.from_numpy(four_ch).unsqueeze(0).to(device)
 
-            # Store the output in the corresponding slice of the box tensor
-            box[i - 1] = x_out
+            # Model inference with softmax normalization
+            logits = model(inp)
+            probs = torch.softmax(logits, dim=1)
 
-        # Reshape the box tensor to the desired output shape
-        return box.reshape(stack[0], 142, stack[1], stack[2])
+            # Store softmax output for this slice
+            box[i - 1] = probs
+
+    return box
 
 
-def parcellation(voxel, pnet_c, pnet_s, pnet_a, device):
+def parcellation(voxel, pnet, device):
     """
-    Perform parcellation on the given voxel data using provided neural networks for coronal, sagittal, and axial views.
+    Perform full 3D brain parcellation by aggregating predictions across multiple anatomical planes.
+
+    The function normalizes the input MRI volume, generates three differently oriented representations
+    (coronal, sagittal, axial), and performs 2.5D inference on each using a shared parcellation network.
+    The resulting probability maps are fused by summation and converted into a discrete segmentation map
+    via argmax over anatomical classes.
 
     Args:
-        voxel (torch.Tensor): The input 3D voxel data to be parcellated.
-        pnet_c (torch.nn.Module): The neural network model for coronal view parcellation.
-        pnet_s (torch.nn.Module): The neural network model for sagittal view parcellation.
-        pnet_a (torch.nn.Module): The neural network model for axial view parcellation.
-        device (torch.device): The device (CPU or GPU) to perform computations on.
+        voxel (numpy.ndarray): Input 3D brain volume (float array).
+        pnet (torch.nn.Module): Trained parcellation network (U-Net or similar architecture).
+        device (torch.device): Device on which inference will be executed (CPU or GPU).
 
     Returns:
-        numpy.ndarray: The parcellated output as a numpy array.
+        numpy.ndarray: Final 3D parcellation map (integer label image) with voxel-wise anatomical labels.
     """
-    # Normalize the voxel data
-    voxel = normalize(voxel)
+    # Normalize input intensities for network inference
+    voxel = normalize(voxel, "parcellation")
 
-    # Prepare the voxel data for different views
+    # Prepare three anatomical views for 2.5D inference
     coronal = voxel.transpose(1, 2, 0)
     sagittal = voxel
     axial = voxel.transpose(2, 1, 0)
 
-    # Perform parcellation for the coronal view
-    out_c = parcellate(coronal, pnet_c, device, "c").permute(1, 3, 0, 2)
+    # ------------------------
+    # Coronal view inference
+    # ------------------------
+    out_c = parcellate(coronal, pnet, device, "Coronal").permute(1, 3, 0, 2)
     torch.cuda.empty_cache()
 
-    # Perform parcellation for the sagittal view
-    out_s = parcellate(sagittal, pnet_s, device, "s").permute(1, 0, 2, 3)
+    # ------------------------
+    # Sagittal view inference
+    # ------------------------
+    out_s = parcellate(sagittal, pnet, device, "Sagittal").permute(1, 0, 2, 3)
     torch.cuda.empty_cache()
 
-    # Combine the results from coronal and sagittal views
+    # Fuse coronal and sagittal predictions
     out_e = out_c + out_s
     del out_c, out_s
 
-    # Perform parcellation for the axial view
-    out_a = parcellate(axial, pnet_a, device, "a").permute(1, 3, 2, 0)
+    # ------------------------
+    # Axial view inference
+    # ------------------------
+    out_a = parcellate(axial, pnet, device, "Axial").permute(1, 3, 2, 0)
     torch.cuda.empty_cache()
 
-    # Combine the results from all views
+    # Combine outputs from all three anatomical orientations
     out_e = out_e + out_a
     del out_a
 
-    # Get the final parcellated output by taking the argmax
+    # Convert probability maps to final integer labels
     parcellated = torch.argmax(out_e, 0).numpy()
 
     return parcellated
