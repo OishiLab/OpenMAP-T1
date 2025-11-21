@@ -17,4 +17,5 @@
 17	Ventricle
 18	Sulcus_L
 19	Sulcus_R
-20	ECS
+20	Subarachnoid_Cisterns_L
+21	Subarachnoid_Cisterns_R

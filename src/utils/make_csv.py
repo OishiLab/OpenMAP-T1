@@ -62,7 +62,7 @@ def make_csv(parcellation, output_dir, basename):
     df_Type1_level5 = (
         pd.read_table(csv_path, names=["number", "region"]).astype("str").set_index("number")
     )
-    for i in range(1, 281):
+    for i in range(1, 275):
         volume = np.count_nonzero(parcellation == i)
         df_Type1_level5.loc[str(i), basename] = volume
 
@@ -110,5 +110,22 @@ def make_csv(parcellation, output_dir, basename):
     df_Type2_level1.to_csv(
         os.path.join(output_dir, f"csv/{basename}_Type2_Level1.csv"), index=False
     )
+
+    df = pd.read_csv(os.path.join(output_dir, f"csv/{basename}_Type1_Level5.csv")).iloc[:,1:]
+    sulcus = [249, 250, 251, 252, 255, 256]
+    sylvianFissure = [253, 254]
+    sum_sulcus = df.iloc[0, sulcus].sum()
+    sum_syl = df.iloc[0, sylvianFissure].sum()
+    syl_ratio = sum_syl / sum_sulcus if sum_sulcus != 0 else None
+    formula = ["(Sylvian Fissure L+R)/(Sulcus L+R)", "(Frontal Sulcus LR)+(Central Sulcus LR)+(Parietal Sulcus LR)"]
+
+    sylvianRatio = pd.DataFrame({
+        "SylvianRatio": [syl_ratio],
+        "SylvianFissure_L+R": [sum_syl],
+        "Sulcus_L+R": [sum_sulcus],
+        "SylvianRatio_Caluclation_Formula":[formula[0]],
+        "Sulcus_L+R_Caluclation_Formula":[formula[1]],
+    })
+    sylvianRatio.to_csv(os.path.join(output_dir, f"csv/{basename}_SylvianRatio.csv"), index=False)
 
     return df_Type1_level5

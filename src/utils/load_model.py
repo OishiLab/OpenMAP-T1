@@ -53,7 +53,7 @@ def load_model(opt, device):
     # Load PNet (Parcellation Network)
     # -----------------------------
     # Input: 4 channels (multi-modal or augmented context), Output: 142 anatomical regions
-    pnet = UNet(4, 142)
+    pnet = UNet(4, 139)
     pnet.load_state_dict(torch.load(os.path.join(model_dir, "PNet", "PNet.pth"), weights_only=True))
     pnet.to(device)
     pnet.eval()

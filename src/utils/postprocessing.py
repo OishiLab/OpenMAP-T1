@@ -81,7 +81,7 @@ def postprocessing(parcellated, separated, shift, device):
     # -----------------------------------------------------------
     # Retain only voxels belonging to hemispheres or specific parcellation indices (87, 138),
     # which likely correspond to midline or reference structures.
-    output = output * (np.logical_or(np.logical_or(separated > 0, parcellated == 87), parcellated == 138))
+    output = output * (np.logical_or(np.logical_or(separated > 0, parcellated == 87), parcellated == 136))
 
     # -----------------------------------------------------------
     # Step 5: Restore original spatial position

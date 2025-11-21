@@ -10,7 +10,7 @@ def parcellate(
     model: torch.nn.Module,
     device: torch.device,
     mode: str,
-    n_classes: int = 142,
+    n_classes: int = 139,
 ) -> torch.Tensor:
     """
     Perform 2.5D neural network inference for brain parcellation along a specific anatomical plane.
