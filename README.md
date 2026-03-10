@@ -26,6 +26,76 @@ Paper: https://onlinelibrary.wiley.com/doi/full/10.1002/hbm.70063<br>
 Cloud Application: https://huggingface.co/spaces/OishiLab/OpenMAP-T1<br>
 Submitted for publication in the **Human Brain Mapping**<br>
 
+# Installation
+**OpenMAP-T1 parcellates the whole brain into 280 anatomical regions based on JHU-atlas in 50 (sec/case).**
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1fmfkxxZjChExnl5cHITYkNYgTu3MZ7Ql#scrollTo=xwZxyL5ewVNF)
+
+## Installation with uv (Recommended)
+
+[uv](https://github.com/astral-sh/uv) is an extremely fast Python package installer and resolver written in Rust. It provides a faster alternative to pip for managing dependencies.
+
+0. Install uv<br>
+   Install uv using one of the following methods:
+
+   **macOS and Linux:**
+   ```bash
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   ```
+
+   **Windows:**
+   ```powershell
+   powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+   ```
+
+   Or using pip:
+   ```bash
+   pip install uv
+   ```
+
+1. Clone this repository, and go into the repository:
+```
+git clone https://github.com/OishiLab/OpenMAP-T1.git
+cd OpenMAP-T1
+```
+
+2. Install dependencies with uv:
+```
+uv sync
+```
+
+3. Please apply and download the pre-trained model from the link below and upload it to your server.
+
+4. You can run OpenMAP-T1 !!
+
+## Installation with pip (Alternative)
+
+0. install python and make virtual environment<br>
+Python 3.9 or later is recommended.
+
+1. Clone this repository, and go into the repository:
+```
+git clone https://github.com/OishiLab/OpenMAP-T1.git
+cd OpenMAP-T1
+```
+2. Please install PyTorch compatible with your environment.<br>
+https://pytorch.org/
+
+Once you select your environment, the required commands will be displayed.
+
+![image](media/PyTorch.png)
+
+If you want to install an older Pytorch environment, you can download it from the link below.<br>
+https://pytorch.org/get-started/previous-versions/
+
+3.  Install libraries other than PyTorch:
+```
+pip install -r requirements.txt
+```
+4. Please apply and download the pre-trained model from the link below and upload it to your server.
+
+5. You can run OpenMAP-T1 !!
+
 # Docker Installation Instruction
 1. Build the Docker Image
 
@@ -64,37 +134,6 @@ These are the command-line arguments passed to the application running inside th
    * ```-m MODEL_FOLDER```: Specifies the model folder path.
 Replace ```INPUT_FOLDER```, ```OUTPUT_FOLDER```, and ```MODEL_FOLDER``` with the appropriate directory names or paths that exist within the mounted ```/app``` directory.
 
-# Default Installation Instruction
-**OpenMAP-T1 parcellates the whole brain into 280 anatomical regions based on JHU-atlas in 50 (sec/case).**
-
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1fmfkxxZjChExnl5cHITYkNYgTu3MZ7Ql#scrollTo=xwZxyL5ewVNF)
-
-0. install python and make virtual environment<br>
-Python 3.9 or later is recommended.
-
-1. Clone this repository, and go into the repository:
-```
-git clone https://github.com/OishiLab/OpenMAP-T1.git
-cd OpenMAP-T1
-```
-3. Please install PyTorch compatible with your environment.<br>
-https://pytorch.org/
-
-Once you select your environment, the required commands will be displayed.
-
-![image](media/PyTorch.png)
-
-If you want to install an older Pytorch environment, you can download it from the link below.<br>
-https://pytorch.org/get-started/previous-versions/
-
-4.  Install libraries other than PyTorch:
-```
-pip install -r requirements.txt
-```
-5. Please apply and download the pre-trained model from the link below and upload it to your server.
-
-6. You can run OpenMAP-T1 !!
-
 # How to download the pretrained model.
 You can get the pretrained model from this link.
 [Link of pretrained model](https://forms.office.com/Pages/ResponsePage.aspx?id=OPSkn-axO0eAP4b4rt8N7Iz6VabmlEBIhG4j3FiMk75UQUxBMkVPTzlIQTQ1UEZJSFY1NURDNzRERC4u)
@@ -107,7 +146,11 @@ Using OpenMAP-T1 is straightforward. You can use it in any terminal on your linu
 ## Basic Usage
 Run the script from your terminal using:
 ```
-# Default
+# uv (if you installed with uv sync)
+uv run python src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
+```
+```
+# pip (activate virtual environment first: source .venv/bin/activate)
 python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
 ```
@@ -123,8 +166,12 @@ OpenMAP-T1 now allows you to perform only specific processing steps using the fo
 
 * **Only Face Cropping**: If you only want to perform face cropping and skip the rest of the processing steps, use:
 ```
-# Default
-python3 parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-face-cropping
+# uv
+uv run python src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-face-cropping
+```
+```
+# pip
+python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-face-cropping
 ```
 ```
 # Docker
@@ -132,17 +179,27 @@ docker run --rm -it -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER
 ```
 * **Only Skull Stripping**: If you want to perform only skull stripping and skip all other processing steps, use the skull stripping flag. Note that skull stripping requires face cropping as a prerequisite, so face cropping is not considered one of the "other processing" steps that are skipped, use:
 ```
-python3 parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-skull-stripping
+# uv
+uv run python src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-skull-stripping
+```
+```
+# pip
+python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-skull-stripping
 ```
 ```
 # Docker
 docker run --rm -it -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-skull-stripping
 ```
 
-## Using Spesific GPU
+## Using Specific GPU
 If you want to run the script on a specific GPU (for example, GPU 1), prepend the command with the ```CUDA_VISIBLE_DEVICES=N```.
 ```
-CUDA_VISIBLE_DEVICES=1 python3 parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
+# uv
+CUDA_VISIBLE_DEVICES=1 uv run python src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
+```
+```
+# pip
+CUDA_VISIBLE_DEVICES=1 python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
 If the error occurs for Windows users, please change ```Python3``` to ```Python```.
 
@@ -222,6 +279,9 @@ Although not included in the paper, our private tests indicate that OpenMAP-T1 c
 
 * **How much GPU memory do I need to run OpenMAP-T1?**<br>
 We ran all our experiments on NVIDIA RTX3090 GPUs with 24 GB memory. For inference you will need less, but since inference in implemented by exploiting the fully convolutional nature of CNNs the amount of memory required depends on your image. Typical image should run with less than 4 GB of GPU memory consumption. If you run into out of memory problems please check the following: 1) Make sure the voxel spacing of your data is correct and 2) Ensure your MRI image only contains the head region.
+
+* **Can OpenMAP-T1 use Apple Silicon (MPS) on MacBook?**<br>
+Yes. OpenMAP-T1 supports MPS (Metal Performance Shaders) on Apple Silicon Macs (M1/M2/M3/M4). When running on a MacBook with Apple Silicon, it automatically uses MPS for GPU acceleration if available, which is faster than CPU-only execution.
 
 * **What is the difference between Type 1 and Type 2?**<br>
 Type 1 outputs the brain surface structure by separating it into the cortex and the subcortical white matter. Typically, Type 1 is used in most cases. In contrast, Type 2 outputs the cortex and the subcortical white matter as a single ROI. Type 2 may be employed when it is desirable to minimize the number of ROIs in data analysis or when quantifying parameters such as regional cerebral blood flow using low-resolution PET images.

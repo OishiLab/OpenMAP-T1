@@ -1,0 +1,22 @@
+[project]
+name = "openmap-t1"
+version = "0.1.0"
+description = "A Rapid Deep-Learning Approach to Parcellate 280 Anatomical Regions to Cover the Whole Brain"
+requires-python = ">=3.10"
+dependencies = [
+    "nibabel==5.3.2",
+    "pandas==2.2.3",
+    "scipy==1.15.2",
+    "SimpleITK==2.4.1",
+    "torch>=2.10.0",
+    "torchaudio>=2.10.0",
+    "torchvision>=0.25.0",
+    "tqdm==4.67.1",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
