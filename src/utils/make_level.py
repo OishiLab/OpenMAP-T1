@@ -10,7 +10,7 @@ PROJECT_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, "..", ".."))
 LEVEL_DIR = os.path.join(PROJECT_ROOT, "level")
 
 
-def create_parcellated_images(output, output_dir, basename, odata, data):
+def create_parcellated_images(output, output_dir, basename, odata, data, output_ext=".nii.gz"):
     """
     Creates parcellated segmentation images for each specified level based on a mapping
     read from CSV files. The mapping is recalculated for each level using the original image labels.
@@ -28,7 +28,7 @@ def create_parcellated_images(output, output_dir, basename, odata, data):
       - Values: values in the column corresponding to the current level (e.g., 'Type1_Level1', etc.)
 
     The output NIfTI files are saved as:
-      os.path.join(output_dir, f"parcellated/{basename}_{level}.nii")
+      os.path.join(output_dir, f"parcellated/{basename}_{level}{output_ext}")
     """
 
     # CSVファイルのパスを LEVEL_DIR を基準に作成
@@ -72,4 +72,4 @@ def create_parcellated_images(output, output_dir, basename, odata, data):
 
         # Construct the output file path and ensure the directory exists
         os.makedirs(os.path.join(output_dir, "parcellated"), exist_ok=True)
-        nib.save(nii, os.path.join(output_dir, f"parcellated/{basename}_{level}.nii"))
+        nib.save(nii, os.path.join(output_dir, f"parcellated/{basename}_{level}{output_ext}"))

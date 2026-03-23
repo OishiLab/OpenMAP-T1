@@ -17,7 +17,7 @@ def normalize(voxel, mode):
     return voxel.astype("float32")
 
 
-def reimburse_conform(output_dir, basename, suffix, odata, data, output):
+def reimburse_conform(output_dir, basename, suffix, odata, data, output, output_ext=".nii.gz"):
     nii = nib.Nifti1Image(output.astype(np.uint16), affine=data.affine)
     header = odata.header
     nii = processing.conform(
@@ -27,9 +27,9 @@ def reimburse_conform(output_dir, basename, suffix, odata, data, output):
         order=0,
     )
     os.makedirs(os.path.join(output_dir, f"{suffix}"), exist_ok=True)
-    nib.save(nii, os.path.join(output_dir, f"{suffix}/{basename}_{suffix}_mask.nii"))
+    nib.save(nii, os.path.join(output_dir, f"{suffix}/{basename}_{suffix}_mask{output_ext}"))
 
     result = odata.get_fdata().astype("float32") * nii.get_fdata().astype("int16")
     nii = nib.Nifti1Image(result.astype(np.float32), affine=odata.affine)
-    nib.save(nii, os.path.join(output_dir, f"{suffix}/{basename}_{suffix}.nii"))
+    nib.save(nii, os.path.join(output_dir, f"{suffix}/{basename}_{suffix}{output_ext}"))
     return

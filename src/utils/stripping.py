@@ -42,7 +42,7 @@ def strip(voxel, model, device):
         return box.reshape(224, 224, 224)
 
 
-def stripping(output_dir, basename, voxel, odata, data, ssnet, shift, device):
+def stripping(output_dir, basename, voxel, odata, data, ssnet, shift, device, output_ext=".nii.gz"):
     """
     Perform full 3D brain stripping using a deep learning model.
 
@@ -94,6 +94,6 @@ def stripping(output_dir, basename, voxel, odata, data, ssnet, shift, device):
     out_e = np.roll(out_e, (-shift[0], -shift[1], -shift[2]), axis=(0, 1, 2))
 
     # Save the binary brain mask in conformed space for reference
-    reimburse_conform(output_dir, basename, "stripped", odata, data, out_e)
+    reimburse_conform(output_dir, basename, "stripped", odata, data, out_e, output_ext)
 
     return stripped

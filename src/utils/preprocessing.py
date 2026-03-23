@@ -32,7 +32,7 @@ def N4_Bias_Field_Correction(input_path, output_path):
     return
 
 
-def preprocessing(ipath, output_dir, basename):
+def preprocessing(ipath, output_dir, basename, output_ext=".nii.gz"):
     """
     Preprocesses a medical image by performing N4 bias field correction and conforming the image to a specified shape and voxel size.
 
@@ -46,7 +46,7 @@ def preprocessing(ipath, output_dir, basename):
             - odata (nibabel.Nifti1Image): The N4 bias field corrected image.
             - data (nibabel.Nifti1Image): The conformed image with specified shape and voxel size.
     """
-    opath = os.path.join(output_dir, f"original/{basename}_N4.nii")
+    opath = os.path.join(output_dir, f"original/{basename}_N4{output_ext}")
     N4_Bias_Field_Correction(ipath, opath)
     odata = nib.squeeze_image(nib.as_closest_canonical(nib.load(opath)))
     data = processing.conform(odata, out_shape=(256, 256, 256), voxel_size=(1.0, 1.0, 1.0), order=1)

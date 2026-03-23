@@ -48,6 +48,12 @@ def create_parser():
         required=True,
         help="Folder containing pretrained model weights required by OpenMAP-T1.",
     )
+    parser.add_argument(
+        "--output-ext",
+        default=".nii.gz",
+        choices=[".nii.gz", ".nii"],
+        help="Output NIfTI extension for saved images (default: .nii.gz).",
+    )
 
     # Mutually exclusive short-circuit modes: run only a subset of the full pipeline.
     group = parser.add_mutually_exclusive_group()
@@ -145,21 +151,21 @@ def main():
             # Persist a canonicalized float32 copy for provenance.
             nii = nib.Nifti1Image(odata.get_fdata().astype(np.float32), affine=odata.affine)
             os.makedirs(os.path.join(output_dir, "original"), exist_ok=True)
-            nib.save(nii, os.path.join(output_dir, f"original/{basename}.nii"))
+            nib.save(nii, os.path.join(output_dir, f"original/{basename}{opt.output_ext}"))
 
             # Preprocessing: intensity normalization, spacing/orientation harmonization, etc.
             # Returns (original-like) 'odata' and a standardized 'data' used by the networks.
-            odata, data = preprocessing(path, output_dir, basename)
+            odata, data = preprocessing(path, output_dir, basename, opt.output_ext)
 
             # Face cropping using the cropping network (returns cropped volume + spatial shift).
-            cropped, shift = cropping(output_dir, basename, odata, data, cnet, device)
+            cropped, shift = cropping(output_dir, basename, odata, data, cnet, device, opt.output_ext)
 
             # Early exit if the user requested cropping only.
             if opt.only_face_cropping:
                 continue
 
             # Skull stripping (brain extraction).
-            stripped = stripping(output_dir, basename, cropped, odata, data, ssnet, shift, device)
+            stripped = stripping(output_dir, basename, cropped, odata, data, ssnet, shift, device, opt.output_ext)
 
             # Early exit if the user requested up to skull stripping only.
             if opt.only_skull_stripping:
@@ -190,10 +196,10 @@ def main():
 
             # Save standardized Level-5 parcellation.
             os.makedirs(os.path.join(output_dir, "parcellated"), exist_ok=True)
-            nib.save(nii, os.path.join(output_dir, f"parcellated/{basename}_Type1_Level5.nii"))
+            nib.save(nii, os.path.join(output_dir, f"parcellated/{basename}_Type1_Level5{opt.output_ext}"))
 
             # Generate auxiliary visualizations / per-level parcellated volumes.
-            create_parcellated_images(output, output_dir, basename, odata, data)
+            create_parcellated_images(output, output_dir, basename, odata, data, opt.output_ext)
 
             # Explicit cleanup of large arrays to ease memory pressure in long batches.
             del odata, data

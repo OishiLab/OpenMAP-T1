@@ -157,9 +157,14 @@ python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 # Docker
 docker run --rm -it -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
+```
+# Save outputs as .nii (optional; default is .nii.gz)
+python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --output-ext .nii
+```
 * **-i INPUT_FOLDER**: Specifies the folder containing the input brain MRI images.
 * **-o OUTPUT_FOLDER**: Defines the folder where the results will be saved. This folder will be created automatically if it does not exist.
 * **-m MODEL_FOLDER**: Indicates the folder containing the pretrained models for processing.
+* **--output-ext {.nii.gz, .nii}**: Output extension for generated NIfTI files. Default is `.nii.gz`.
 
 ## Optional Faster Processing Steps
 OpenMAP-T1 now allows you to perform only specific processing steps using the following mutually exclusive flags. By specifying these options, OpenMAP-T1 skips unnecessary processing steps, which can significantly reduce overall processing time.
@@ -204,7 +209,7 @@ CUDA_VISIBLE_DEVICES=1 python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOL
 If the error occurs for Windows users, please change ```Python3``` to ```Python```.
 
 # Folder
-All images you input must be in NifTi format and have a .nii extension.
+All input images must be NIfTI files (`.nii` or `.nii.gz`). By default, generated NIfTI outputs are saved as `.nii.gz` (use `--output-ext .nii` to save as `.nii`).
 ```
 INPUR_FOLDER/
    ├ A.nii or .nii.gz
@@ -214,8 +219,8 @@ INPUR_FOLDER/
 OUTPUT_FOLDER/
    ├── A
    │   ├── cropped
-   │   │   ├── A_cropped_mask.nii
-   │   │   └── A_cropped.nii
+   │   │   ├── A_cropped_mask.nii.gz
+   │   │   └── A_cropped.nii.gz
    │   ├── csv
    │   │   ├── A_Type1_Level1.csv
    │   │   ├── A_Type1_Level2.csv
@@ -228,22 +233,22 @@ OUTPUT_FOLDER/
    │   │   ├── A_Type2_Level4.csv
    │   │   └── A_Type2_Level5.csv
    │   ├── original
-   │   │   ├── A_N4.nii
-   │   │   └── A.nii
+   │   │   ├── A_N4.nii.gz
+   │   │   └── A.nii.gz
    │   ├── parcellated
-   │   │   ├── A_Type1_Level1.nii
-   │   │   ├── A_Type1_Level2.nii
-   │   │   ├── A_Type1_Level3.nii
-   │   │   ├── A_Type1_Level4.nii
-   │   │   ├── A_Type1_Level5.nii
-   │   │   ├── A_Type2_Level1.nii
-   │   │   ├── A_Type2_Level2.nii
-   │   │   ├── A_Type2_Level3.nii
-   │   │   ├── A_Type2_Level4.nii
-   │   │   └── A_Type2_Level5.nii
+   │   │   ├── A_Type1_Level1.nii.gz
+   │   │   ├── A_Type1_Level2.nii.gz
+   │   │   ├── A_Type1_Level3.nii.gz
+   │   │   ├── A_Type1_Level4.nii.gz
+   │   │   ├── A_Type1_Level5.nii.gz
+   │   │   ├── A_Type2_Level1.nii.gz
+   │   │   ├── A_Type2_Level2.nii.gz
+   │   │   ├── A_Type2_Level3.nii.gz
+   │   │   ├── A_Type2_Level4.nii.gz
+   │   │   └── A_Type2_Level5.nii.gz
    │   └── stripped
-   │       ├── A_stripped_mask.nii
-   │       └── A_stripped.nii
+   │       ├── A_stripped_mask.nii.gz
+   │       └── A_stripped.nii.gz
    ├── ...
 
 MODEL_FOLDER/
