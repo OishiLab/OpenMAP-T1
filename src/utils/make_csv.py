@@ -58,7 +58,7 @@ def make_csv(parcellation, output_dir, basename):
     pandas.DataFrame: The DataFrame containing volume data for Type1_Level5.
     """
     # LEVEL_DIR を基準にテキストファイルの絶対パスを作成
-    csv_path = os.path.join(LEVEL_DIR, "Level5.txt")
+    csv_path = os.path.join(LEVEL_DIR, "Type1Level5.txt")
     df_Type1_level5 = (
         pd.read_table(csv_path, names=["number", "region"]).astype("str").set_index("number")
     )

@@ -5,7 +5,7 @@
 # OpenMAP-T1
 ![Figure3](media/Representative.png)
 
-**Languages**: [English](README.md) | [日本語 (Japanese)](docs/README-ja.md)
+**Languages**: [English](README.md) | [日本語 (Japanese)](docs/README-ja.md) | [中文 (Chinese)](docs/README-zh.md)
 
 [![](http://img.shields.io/badge/medRxiv-10.1101/2024.01.18.24301494-B31B1B.svg)](https://www.medrxiv.org/content/10.1101/2024.01.18.24301494v1)
 [![IEEE Xplore](https://img.shields.io/badge/Accepted-Human%20Brain%20Mapping-%2300629B%09)](https://onlinelibrary.wiley.com/journal/10970193)
@@ -262,6 +262,12 @@ MODEL_FOLDER/
       ├ coronal.pth
       └ axial.pth
 ```
+
+## Level Metadata (JHU-Atlas)
+The `level/` folder contains lookup tables and hierarchy definitions related to the JHU-atlas-based parcellation used by OpenMAP-T1.
+
+- `level/OpenMAP-T1_multilevel_lookup_table_dictionary.csv` includes the official ROI names for **Type1 Level5** and their corresponding multilevel mappings.
+- Type1 text dictionaries are named `level/Type1Level1.txt` to `level/Type1Level5.txt`.
 
 # Supplementary information
 ![supplementary_level](media/Multilevel.png)

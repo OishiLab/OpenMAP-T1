@@ -5,7 +5,7 @@
 # OpenMAP-T1
 ![Figure3](../media/Representative.png)
 
-**言語**: [English](../README.md) | [日本語 (Japanese)](README-ja.md)
+**言語**: [English](../README.md) | [日本語 (Japanese)](README-ja.md) | [中文 (Chinese)](README-zh.md)
 
 [![](http://img.shields.io/badge/medRxiv-10.1101/2024.01.18.24301494-B31B1B.svg)](https://www.medrxiv.org/content/10.1101/2024.01.18.24301494v1)
 [![IEEE Xplore](https://img.shields.io/badge/Accepted-Human%20Brain%20Mapping-%2300629B%09)](https://onlinelibrary.wiley.com/journal/10970193)
@@ -262,6 +262,12 @@ MODEL_FOLDER/
       ├ coronal.pth
       └ axial.pth
 ```
+
+## Levelメタデータ（JHU-Atlas）
+`level/` フォルダには、OpenMAP-T1 の JHU-atlas ベースのパーセレーションに対応する階層定義・対応表が含まれています。
+
+- `level/OpenMAP-T1_multilevel_lookup_table_dictionary.csv` には、**Type1 Level5** の正式ROI名称と、各階層レベルへの対応情報が記載されています。
+- Type1 のテキスト辞書は `level/Type1Level1.txt` から `level/Type1Level5.txt` という命名です。
 
 # 補足情報
 ![supplementary_level](../media/Multilevel.png)
