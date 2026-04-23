@@ -1,3 +1,5 @@
+![Cover](../media/Cover.png)
+
 ![Explain](../media/Explain.png)
 
 ![Explain](../media/Application.png)
