@@ -299,6 +299,9 @@ Yes. OpenMAP-T1 supports MPS (Metal Performance Shaders) on Apple Silicon Macs (
 * **What is the difference between Type 1 and Type 2?**<br>
 Type 1 outputs the brain surface structure by separating it into the cortex and the subcortical white matter. Typically, Type 1 is used in most cases. In contrast, Type 2 outputs the cortex and the subcortical white matter as a single ROI. Type 2 may be employed when it is desirable to minimize the number of ROIs in data analysis or when quantifying parameters such as regional cerebral blood flow using low-resolution PET images.
 
+* **What units are the regional volumes in the CSV outputs, and why are they whole numbers?**<br>
+Volumes are in cubic millimeters (mm³). They are reported as integers with no fractional part because they are computed as voxel counts per region on the preprocessed image that has been conformed to 1 × 1 × 1 mm isotropic spacing, so each voxel represents exactly 1 mm³.
+
 * **Will you provide the training code as well?**<br>
 No. The training code is tightly wound around the data which we cannot make public.
 
@@ -314,6 +317,9 @@ No. The training code is tightly wound around the data which we cannot make publ
 
 # Related Research
 The following studies have utilized OpenMAP-T1 for advanced segmentation and analysis in T1-weighted MRI. 
+* **[Data-driven schizophrenia subtyping via brain atrophy trajectories and functional connectivity](https://www.nature.com/articles/s41398-026-03968-w)**  
+   *Authors:* Daisuke Yoshimaru, Kazuya Ouchi, Shuhei Shibukawa, Masakazu Ozawa, Motoki Hirabayashi, Ami Yuzawa, Tomokazu Tsurugizawa, Kenichi Oishi, Hirotaka James Okano;  
+   *Journal:* Translational Psychiatry
 * **[Change points for dynamic biomarkers in the Alzheimer's disease pathological cascade: A 30-year cohort study](https://alz-journals.onlinelibrary.wiley.com/doi/full/10.1002/alz.70544)**  
    *Authors:* Yuto Uchida, Kei Nishimaki, Anja Soldan, Corinne Pettigrew, Sara Grace Ho, Abhay Moghekar, Mei-Cheng Wang, Michael I. Miller, Marilyn Albert, Kenichi Oishi;
    *Journal:* Alzheimer's & dementia
