@@ -4,9 +4,7 @@ from collections import defaultdict
 import numpy as np
 import pandas as pd
 
-# このファイルのあるディレクトリの絶対パスを取得し、そこから level ディレクトリへの絶対パスを作成
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-LEVEL_DIR = os.path.abspath(os.path.join(CURRENT_DIR, "..", "..", "level"))
+LEVEL_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "level"))
 
 
 def change_level(df, level="Type1_Level1", sulcus=True):

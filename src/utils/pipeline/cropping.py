@@ -3,7 +3,8 @@ import torch
 from scipy import ndimage
 from scipy.ndimage import binary_closing
 
-from utils.functions import normalize, reimburse_conform
+from utils.image import normalize
+from utils.output.output_space import save_mask_and_masked
 
 
 def crop(voxel, model, device):
@@ -59,7 +60,7 @@ def closing(voxel):
     return voxel
 
 
-def cropping(output_dir, basename, odata, data, cnet, device, output_ext=".nii.gz"):
+def cropping(output_dir, basename, odata, data, cnet, device, output_ext=".nii.gz", output_space="native"):
     """
     Perform 3D brain region cropping using a deep learning model.
 
@@ -102,8 +103,7 @@ def cropping(output_dir, basename, odata, data, cnet, device, output_ext=".nii.g
     # Apply the mask to the original image
     cropped = data.get_fdata().astype("float32") * out_e
 
-    # Save the binary mask in the output directory
-    reimburse_conform(output_dir, basename, "cropped", odata, data, out_e, output_ext)
+    save_mask_and_masked(output_dir, basename, "cropped", out_e, odata, data, output_ext, output_space)
 
     # Compute center of mass for the masked brain
     x, y, z = map(int, ndimage.center_of_mass(out_e))

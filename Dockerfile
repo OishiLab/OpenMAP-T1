@@ -11,7 +11,7 @@ WORKDIR /app
 # リポジトリ内の全ファイルをコンテナにコピー
 COPY . .
 
-# pipをアップグレードし、requirements.txt のパッケージをインストール
+# pipをアップグレードし、requirements_for_docker.txt のパッケージをインストール
 RUN pip install --upgrade pip && pip install -r requirements_for_docker.txt
 
 # ENTRYPOINT により、常に python src/parcellation.py が実行されるように設定

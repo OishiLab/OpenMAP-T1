@@ -2,7 +2,8 @@ import numpy as np
 import torch
 from scipy import ndimage
 
-from utils.functions import normalize, reimburse_conform
+from utils.image import normalize
+from utils.output.output_space import save_mask_and_masked
 
 
 def strip(voxel, model, device):
@@ -42,7 +43,7 @@ def strip(voxel, model, device):
         return box.reshape(224, 224, 224)
 
 
-def stripping(output_dir, basename, voxel, odata, data, ssnet, shift, device, output_ext=".nii.gz"):
+def stripping(output_dir, basename, voxel, odata, data, ssnet, shift, device, output_ext=".nii.gz", output_space="native"):
     """
     Perform full 3D brain stripping using a deep learning model.
 
@@ -93,7 +94,6 @@ def stripping(output_dir, basename, voxel, odata, data, ssnet, shift, device, ou
     out_e = np.pad(out_e, [(16, 16), (16, 16), (16, 16)], "constant", constant_values=0)
     out_e = np.roll(out_e, (-shift[0], -shift[1], -shift[2]), axis=(0, 1, 2))
 
-    # Save the binary brain mask in conformed space for reference
-    reimburse_conform(output_dir, basename, "stripped", odata, data, out_e, output_ext)
+    save_mask_and_masked(output_dir, basename, "stripped", out_e, odata, data, output_ext, output_space)
 
     return stripped

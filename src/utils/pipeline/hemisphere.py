@@ -2,7 +2,7 @@ import numpy as np
 import torch
 from scipy.ndimage import binary_dilation
 
-from utils.functions import normalize
+from utils.image import normalize
 
 
 def separate(voxel, model, device):

@@ -2,7 +2,7 @@ import os
 
 import torch
 
-from utils.network import UNet
+from utils.models.network import UNet
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 

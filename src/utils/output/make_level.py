@@ -1,16 +1,15 @@
 import os
 
-import nibabel as nib
 import numpy as np
 import pandas as pd
-from nibabel import processing
 
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, "..", ".."))
+from utils.output.output_space import save_label_volume
+
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 LEVEL_DIR = os.path.join(PROJECT_ROOT, "level")
 
 
-def create_parcellated_images(output, output_dir, basename, odata, data, output_ext=".nii.gz"):
+def create_parcellated_images(output, output_dir, basename, odata, data, output_ext=".nii.gz", output_space="native"):
     """
     Creates parcellated segmentation images for each specified level based on a mapping
     read from CSV files. The mapping is recalculated for each level using the original image labels.
@@ -60,16 +59,14 @@ def create_parcellated_images(output, output_dir, basename, odata, data, output_
         for old, new in mapping.items():
             label[label == old] = new
 
-        # Create a NIfTI image with the new labels (casting to uint16) and save it
-        nii = nib.Nifti1Image(label.astype(np.uint16), affine=data.affine)
-        header = odata.header
-        nii = processing.conform(
-            nii,
-            out_shape=(header["dim"][1], header["dim"][2], header["dim"][3]),
-            voxel_size=(header["pixdim"][1], header["pixdim"][2], header["pixdim"][3]),
-            order=0,
+        save_label_volume(
+            output_dir,
+            "parcellated",
+            basename,
+            level,
+            label,
+            odata,
+            data,
+            output_ext,
+            output_space,
         )
-
-        # Construct the output file path and ensure the directory exists
-        os.makedirs(os.path.join(output_dir, "parcellated"), exist_ok=True)
-        nib.save(nii, os.path.join(output_dir, f"parcellated/{basename}_{level}{output_ext}"))

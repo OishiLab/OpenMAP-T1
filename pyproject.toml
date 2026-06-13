@@ -2,16 +2,16 @@
 name = "openmap-t1"
 version = "0.1.0"
 description = "A Rapid Deep-Learning Approach to Parcellate 280 Anatomical Regions to Cover the Whole Brain"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
-    "nibabel==5.3.2",
-    "pandas==2.2.3",
-    "scipy==1.15.2",
-    "SimpleITK==2.4.1",
-    "torch>=2.10.0",
-    "torchaudio>=2.10.0",
-    "torchvision>=0.25.0",
-    "tqdm==4.67.1",
+    "nibabel==5.4.2",
+    "pandas==3.0.3",
+    "scipy==1.17.1",
+    "SimpleITK==2.5.5",
+    "torch>=2.12.0",
+    "torchaudio>=2.11.0",
+    "torchvision>=0.27.0",
+    "tqdm==4.68.2",
 ]
 
 [build-system]

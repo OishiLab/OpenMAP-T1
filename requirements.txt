@@ -1,5 +1,5 @@
-nibabel==5.3.2
-pandas==2.2.3
-scipy==1.15.2
-SimpleITK==2.4.1
-tqdm==4.67.1
+nibabel==5.4.2
+pandas==3.0.3
+scipy==1.17.1
+SimpleITK==2.5.5
+tqdm==4.68.2

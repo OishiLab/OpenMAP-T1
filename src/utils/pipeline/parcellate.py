@@ -2,7 +2,7 @@ import numpy as np
 import torch
 from tqdm import tqdm
 
-from utils.functions import normalize
+from utils.image import normalize
 
 
 def parcellate(

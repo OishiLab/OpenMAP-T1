@@ -1,10 +1,10 @@
 import argparse
 import glob
 import os
+import sys
 from functools import partial
 
 import torch
-from nibabel import processing
 from tqdm import tqdm as std_tqdm
 
 # tqdm wrapper with dynamic terminal width
@@ -14,15 +14,17 @@ import nibabel as nib
 import numpy as np
 
 # Project-local utilities
-from utils.cropping import cropping
-from utils.hemisphere import hemisphere
-from utils.load_model import load_model
-from utils.make_csv import make_csv
-from utils.make_level import create_parcellated_images
-from utils.parcellation import parcellation
-from utils.postprocessing import postprocessing
-from utils.preprocessing import preprocessing
-from utils.stripping import stripping
+from utils.pipeline.cropping import cropping
+from utils.pipeline.hemisphere import hemisphere
+from utils.models.load_model import load_model
+from utils.output.make_csv import make_csv
+from utils.output.make_level import create_parcellated_images
+from utils.output.output_space import OUTPUT_SPACE_CHOICES, save_label_volume
+from utils.pipeline.parcellate import parcellation
+from utils.pipeline.postprocessing import postprocessing
+from utils.pipeline.preprocessing import preprocessing
+from utils.output.processing_log import ProcessingLog
+from utils.pipeline.stripping import stripping
 
 
 def create_parser():
@@ -53,6 +55,17 @@ def create_parser():
         default=".nii.gz",
         choices=[".nii.gz", ".nii"],
         help="Output NIfTI extension for saved images (default: .nii.gz).",
+    )
+    parser.add_argument(
+        "--output-space",
+        default="native",
+        choices=list(OUTPUT_SPACE_CHOICES),
+        help=(
+            "Geometry for saved NIfTI outputs. "
+            "'native': resample to the N4-corrected canonical input grid (default). "
+            "'conform': keep the 1 mm isotropic 256³ processing grid. "
+            "'both': write both versions (1 mm outputs under conform/)."
+        ),
     )
 
     # Mutually exclusive short-circuit modes: run only a subset of the full pipeline.
@@ -93,10 +106,12 @@ def main():
     print(
         "\n#######################################################################\n"
         "Please cite the following paper when using OpenMAP-T1:\n"
-        "Kei Nishimaki, Kengo Onda, Kumpei Ikuta, Jill Chotiyanonta, Yuto Uchida, Hitoshi Iyatomi, Kenichi Oishi (2024).\n"
-        "OpenMAP-T1: A Rapid Deep Learning Approach to Parcellate 280 Anatomical Regions to Cover the Whole Brain.\n"
+        "Kei Nishimaki, Kengo Onda, Kumpei Ikuta, Jill Chotiyanonta, Yuto Uchida, Susumu Mori, "
+        "Hitoshi Iyatomi, Kenichi Oishi, Alzheimer's Disease Neuroimaging Initiative, and "
+        "Australian Imaging Biomarkers and Lifestyle Flagship Study of Ageing (2024).\n"
+        "OpenMAP-T1: A Rapid Deep-Learning Approach to Parcellate 280 Anatomical Regions to Cover the Whole Brain.\n"
         "paper: https://onlinelibrary.wiley.com/doi/full/10.1002/hbm.70063.\n"
-        "Submitted for publication in the Human Brain Mapping.\n"
+        "Published in Human Brain Mapping.\n"
         "#######################################################################\n"
     )
 
@@ -118,22 +133,26 @@ def main():
         cnet, ssnet, pnet, hnet = load_model(opt, device)
         print("Load complete !!")
     except Exception as e:
-        # Continue to allow the script to report the error and exit gracefully later.
-        print("Error during model loading:", e)
+        print(f"Error during model loading: {e}")
+        sys.exit(1)
 
     # Basic sanity check on input directory.
-    if not os.path.exists(opt.i):
+    if not os.path.isdir(opt.i):
         print(f"Error: Input directory {opt.i} does not exist.")
-    else:
-        print(f"Input directory {opt.i} exists.")
+        sys.exit(1)
+    print(f"Input directory {opt.i} exists.")
 
     # Enumerate NIfTI inputs recursively, supporting both .nii and .nii.gz.
     # Note: Double 'sorted' is redundant but harmless; ensures deterministic order.
     pathes = sorted(sorted(glob.glob(os.path.join(opt.i, "**/*.nii"), recursive=True)) + sorted(glob.glob(os.path.join(opt.i, "**/*.nii.gz"), recursive=True)))
     print(f"Found {len(pathes)} NIfTI files in {opt.i}")
 
+    processing_log = ProcessingLog()
+    os.makedirs(opt.o, exist_ok=True)
+
     # Process each input image independently.
     for path in tqdm(pathes):
+        basename = None
         try:
             # Derive a clean base name without any extension.
             basename = os.path.splitext(os.path.basename(path))[0]
@@ -158,17 +177,40 @@ def main():
             odata, data = preprocessing(path, output_dir, basename, opt.output_ext)
 
             # Face cropping using the cropping network (returns cropped volume + spatial shift).
-            cropped, shift = cropping(output_dir, basename, odata, data, cnet, device, opt.output_ext)
+            cropped, shift = cropping(
+                output_dir, basename, odata, data, cnet, device, opt.output_ext, opt.output_space
+            )
 
             # Early exit if the user requested cropping only.
             if opt.only_face_cropping:
+                processing_log.add_skipped(
+                    path,
+                    basename,
+                    "Pipeline stopped early (--only-face-cropping).",
+                )
                 continue
 
             # Skull stripping (brain extraction).
-            stripped = stripping(output_dir, basename, cropped, odata, data, ssnet, shift, device, opt.output_ext)
+            stripped = stripping(
+                output_dir,
+                basename,
+                cropped,
+                odata,
+                data,
+                ssnet,
+                shift,
+                device,
+                opt.output_ext,
+                opt.output_space,
+            )
 
             # Early exit if the user requested up to skull stripping only.
             if opt.only_skull_stripping:
+                processing_log.add_skipped(
+                    path,
+                    basename,
+                    "Pipeline stopped early (--only-skull-stripping).",
+                )
                 continue
 
             # Parcellation into anatomical labels.
@@ -180,26 +222,26 @@ def main():
             # Post-processing to fuse parcellation with hemisphere info and to restore shifts.
             output = postprocessing(parcellated, separated, shift, device)
 
+            processing_log.check_low_volume(path, basename, output)
+
             # Quantify regional volumes and export to CSV.
             df = make_csv(output, output_dir, basename)
 
-            # Conform output label image back to the original image geometry.
-            # Use nearest-neighbor resampling (order=0) to preserve integer labels.
-            nii = nib.Nifti1Image(output.astype(np.uint16), affine=data.affine)
-            header = odata.header
-            nii = processing.conform(
-                nii,
-                out_shape=(header["dim"][1], header["dim"][2], header["dim"][3]),
-                voxel_size=(header["pixdim"][1], header["pixdim"][2], header["pixdim"][3]),
-                order=0,
+            save_label_volume(
+                output_dir,
+                "parcellated",
+                basename,
+                "Type1_Level5",
+                output,
+                odata,
+                data,
+                opt.output_ext,
+                opt.output_space,
             )
 
-            # Save standardized Level-5 parcellation.
-            os.makedirs(os.path.join(output_dir, "parcellated"), exist_ok=True)
-            nib.save(nii, os.path.join(output_dir, f"parcellated/{basename}_Type1_Level5{opt.output_ext}"))
-
-            # Generate auxiliary visualizations / per-level parcellated volumes.
-            create_parcellated_images(output, output_dir, basename, odata, data, opt.output_ext)
+            create_parcellated_images(
+                output, output_dir, basename, odata, data, opt.output_ext, opt.output_space
+            )
 
             # Explicit cleanup of large arrays to ease memory pressure in long batches.
             del odata, data
@@ -207,7 +249,10 @@ def main():
         except Exception as e:
             # Robust per-file error isolation: proceed to the next case on failure.
             print(f"Error processing {path}: {e}")
+            processing_log.add_failed(path, basename or os.path.basename(path), str(e))
             continue
+
+    processing_log.save(opt.o)
     return
 
 

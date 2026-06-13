@@ -1,0 +1,29 @@
+# Runtime data (mounted at docker run)
+model/
+input/
+output/
+
+# Version control and local dev
+.git/
+.gitignore
+.venv/
+venv/
+env/
+.python-version
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.DS_Store
+Mfile.py
+
+# Docs and assets (not used by parcellation.py)
+docs/
+media/
+README.md
+LICENSE
+
+# Local dependency lockfiles (image uses requirements_for_docker.txt)
+uv.lock
+pyproject.toml
+requirements.txt
