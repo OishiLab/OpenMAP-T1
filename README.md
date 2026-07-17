@@ -368,11 +368,20 @@ No. The training code is tightly wound around the data which we cannot make publ
 
 # Citation
 ```
-@techreport{nishimaki2024openmap,
+@article{nishimaki2024openmap,
+  author={Nishimaki, Kei and Onda, Kengo and Ikuta, Kumpei and Chotiyanonta, Jill and Uchida, Yuto and Mori, Susumu and Iyatomi, Hitoshi and Oishi, Kenichi and Alzheimer's Disease Neuroimaging Initiative and {Australian Imaging Biomarkers and Lifestyle Flagship Study of Ageing}},
   title={OpenMAP-T1: A Rapid Deep-Learning Approach to Parcellate 280 Anatomical Regions to Cover the Whole Brain},
-  author={Nishimaki, Kei and Onda, Kengo and Ikuta, Kumpei and Chotiyanonta, Jill and Uchida, Yuto and Mori, Susumu and Iyatomi, Hitoshi and Oishi, Kenichi and Alzheimer's Disease Neuroimaging Initiative and Australian Imaging Biomarkers and Lifestyle Flagship Study of Ageing},
-  year={2024},
-  institution={Wiley Online Library}
+  journal={Human Brain Mapping},
+  volume={45},
+  number={16},
+  pages={e70063},
+  keywords={brain, deep-learning, MRI, parcellation, segmentation, T1},
+  doi={10.1002/hbm.70063},
+  url={https://onlinelibrary.wiley.com/doi/abs/10.1002/hbm.70063},
+  eprint={https://onlinelibrary.wiley.com/doi/pdf/10.1002/hbm.70063},
+  note={e70063 HBM-24-0380.R2},
+  abstract={ABSTRACT This study introduces OpenMAP-T1, a deep-learning-based method for rapid and accurate whole-brain parcellation in T1-weighted brain MRI, which aims to overcome the limitations of conventional normalization-to-atlas-based approaches and multi-atlas label-fusion (MALF) techniques. Brain image parcellation is a fundamental process in neuroscientific and clinical research, enabling a detailed analysis of specific cerebral regions. Normalization-to-atlas-based methods have been employed for this task, but they face limitations due to variations in brain morphology, especially in pathological conditions. The MALF techniques improved the accuracy of the image parcellation and robustness to variations in brain morphology, but at the cost of high computational demand that requires a lengthy processing time. OpenMAP-T1 integrates several convolutional neural network models across six phases: preprocessing; cropping; skull-stripping; parcellation; hemisphere segmentation; and final merging. This process involves standardizing MRI images, isolating the brain tissue, and parcellating it into 280 anatomical structures that cover the whole brain, including detailed gray and white matter structures, while simplifying the parcellation processes and incorporating robust training to handle various scan types and conditions. The OpenMAP-T1 was validated on the Johns Hopkins University atlas library and eight available open resources, including real-world clinical images, and the demonstration of robustness across different datasets with variations in scanner types, magnetic field strengths, and image processing techniques, such as defacing. Compared with existing methods, OpenMAP-T1 significantly reduced the processing time per image from several hours to less than 90 s without compromising accuracy. It was particularly effective in handling images with intensity inhomogeneity and varying head positions, conditions commonly seen in clinical settings. The adaptability of OpenMAP-T1 to a wide range of MRI datasets and its robustness to various scan conditions highlight its potential as a versatile tool in neuroimaging.},
+  year={2024}
 }
 ```
 
