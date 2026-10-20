@@ -392,6 +392,9 @@ Yes. OpenMAP-T1 supports MPS (Metal Performance Shaders) on Apple Silicon Macs (
 OpenMAP-T1 is designed for detailed parcellation of the brain parenchyma, with a particular focus on white matter structures. In contrast, OpenMAP-T1c is trained using labels registered from T2-weighted MRI, placing greater emphasis on the segmentation of perivascular and subarachnoid CSF spaces (such as cortical sulci, Sylvian fissures, and subarachnoid cisterns). If you want even more detailed and accurate CSF segmentation (when T2-weighted MRI is available), we recommend using [OpenMAP-T2](https://github.com/OishiLab/OpenMAP-T2).<br>
 ![OpenMAP-T1 vs OpenMAP-T1c](media/OpenMAP-T1_vs_OpenMAP-T1c.png)
 
+* **Why do some CSF labels differ between OpenMAP-T1 and OpenMAP-T1c?**<br>
+The JHU atlas has continued to be extended since the [MRICloud](https://mricloud.org/) era. OpenMAP-T1 follows the conventional definition (V10B). OpenMAP-T1c uses a revised atlas in which some CSF anatomical regions have been updated, so a few CSF labels do not correspond one to one with OpenMAP-T1.
+
 * **What is the difference between Type 1 and Type 2?**<br>
 Type 1 outputs the brain surface structure by separating it into the cortex and the subcortical white matter. Typically, Type 1 is used in most cases. In contrast, Type 2 outputs the cortex and the subcortical white matter as a single ROI. Type 2 may be employed when it is desirable to minimize the number of ROIs in data analysis or when quantifying parameters such as regional cerebral blood flow using low-resolution PET images.
 

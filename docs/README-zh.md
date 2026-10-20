@@ -373,6 +373,9 @@ OpenMAP-T1 采用 JHU 图谱。
 OpenMAP-T1 旨在对脑实质（尤其是白质结构）进行精细分区；而 OpenMAP-T1c 使用从 T2 加权 MRI 配准得到的标签进行训练，更加侧重于脑脊液（CSF）周边区域（如脑沟、外侧裂及蛛网膜下腔脑池等）的分割。如果您希望对 CSF 进行更加精细和准确的分割（在有 T2 加权图像的情况下），推荐使用 [OpenMAP-T2](https://github.com/OishiLab/OpenMAP-T2)。<br>
 ![OpenMAP-T1 vs OpenMAP-T1c](../media/OpenMAP-T1_vs_OpenMAP-T1c.png)
 
+* **为什么 OpenMAP-T1 和 OpenMAP-T1c 的部分 CSF 标签并不一致？**<br>
+自 [MRICloud](https://mricloud.org/) 时期以来，JHU 图谱一直在持续扩展。OpenMAP-T1 沿用传统定义（V10B）。OpenMAP-T1c 使用的是修订后的图谱，其中部分 CSF 解剖区域已被更新，因此有些 CSF 标签与 OpenMAP-T1 并非一一对应。
+
 * **Type 1 和 Type 2 有何区别？**<br>
 Type 1 将脑表面结构分为皮层和皮层下白质，通常用于大多数情况。Type 2 将皮层和皮层下白质作为单一 ROI 输出，适用于希望减少 ROI 数量或使用低分辨率 PET 量化局部脑血流量等参数时。
 
