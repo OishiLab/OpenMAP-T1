@@ -4,7 +4,7 @@
 
 ![Explain](media/Application.png)
 
-# OpenMAP-T1
+# OpenMAP-T1 and OpenMAP-T1c
 ![Figure3](media/Representative.png)
 
 **Languages**: [English](README.md) | [日本語 (Japanese)](docs/README-ja.md) | [中文 (Chinese)](docs/README-zh.md)
@@ -12,7 +12,7 @@
 [![](http://img.shields.io/badge/medRxiv-10.1101/2024.01.18.24301494-B31B1B.svg)](https://www.medrxiv.org/content/10.1101/2024.01.18.24301494v1)
 [![Human Brain Mapping](https://img.shields.io/badge/Published-Human%20Brain%20Mapping-%2300629B)](https://onlinelibrary.wiley.com/doi/full/10.1002/hbm.70063)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1fmfkxxZjChExnl5cHITYkNYgTu3MZ7Ql#scrollTo=xwZxyL5ewVNF)
-![Python 3.11+](https://img.shields.io/badge/Python-3.11+-brightgreen.svg)
+![Python 3.12+](https://img.shields.io/badge/Python-3.12+-brightgreen.svg)
 [![HuggingFace Application](https://img.shields.io/badge/HuggingFace-Application-orange.svg)](https://huggingface.co/spaces/OishiLab/OpenMAP-T1)
 
 [![Thank you — 40 GitHub stars](https://img.shields.io/badge/thank%20you!-40%20GitHub%20stars-D5312A?style=for-the-badge&logo=github&logoColor=white)](https://github.com/OishiLab/OpenMAP-T1)
@@ -30,10 +30,16 @@ Paper: https://onlinelibrary.wiley.com/doi/full/10.1002/hbm.70063<br>
 Cloud Application: https://huggingface.co/spaces/OishiLab/OpenMAP-T1<br>
 Published in **Human Brain Mapping**<br>
 
+## OpenMAP series
+OpenMAP is a family of deep-learning models that parcellate the whole brain into 280 anatomical regions.
+
+- **OpenMAP-T1** and **OpenMAP-T1c** are both included in this repository and take a T1-weighted MRI. OpenMAP-T1 is aimed at detailed parcellation of the brain parenchyma, especially white matter. OpenMAP-T1c is trained on labels registered from T2-weighted MRI and pays more attention to CSF around the cortical sulci, Sylvian fissures, and subarachnoid cisterns.
+- For finer CSF segmentation from a T2-weighted MRI, use **[OpenMAP-T2](https://github.com/OishiLab/OpenMAP-T2)**.
+
 ## Requirements
-- **Python 3.11 or later** (required by pandas 3.0)
-- **PyTorch 2.12 or later** (installed automatically with `uv sync`; install separately when using pip)
-- Other pinned libraries: nibabel 5.4.2, pandas 3.0.3, scipy 1.17.1, SimpleITK 2.5.5, tqdm 4.68.2
+- **Python 3.12 or later** (required by scipy 1.18). The Docker image uses Python 3.14.8, the newest release that still has PyTorch wheels.
+- **PyTorch 2.14 or later** (installed automatically with `uv sync`; install separately when using pip)
+- Other pinned libraries: nibabel 5.4.2, pandas 3.0.6, scipy 1.18.1, SimpleITK 2.5.6, tqdm 4.70.1
 
 # Installation
 **OpenMAP-T1 parcellates the whole brain into 280 anatomical regions based on JHU-atlas in 50 (sec/case).**
@@ -79,7 +85,7 @@ uv sync
 
 ## Installation with pip (Alternative)
 
-0. Install Python 3.11 or later and create a virtual environment.<br>
+0. Install Python 3.12 or later and create a virtual environment.<br>
 
 1. Clone this repository, and go into the repository:
 ```
@@ -89,7 +95,7 @@ cd OpenMAP-T1
 2. Install PyTorch compatible with your environment.<br>
 https://pytorch.org/
 
-The latest stable PyTorch (2.12+) requires **Python 3.10 or later**; this project requires **Python 3.11 or later** because of pandas 3.0.
+The latest stable PyTorch (2.14+) requires **Python 3.10 or later**; this project requires **Python 3.12 or later** because of scipy 1.18.
 
 Once you select your environment, the required commands will be displayed.
 
@@ -107,7 +113,7 @@ pip install -r requirements.txt
 5. You can run OpenMAP-T1!
 
 # Docker Installation Instruction
-The Docker image is based on `python:3.13.2-slim` and installs dependencies from `requirements_for_docker.txt`, which is exported from `uv.lock`. To regenerate it after dependency updates, run:
+The Docker image is based on `python:3.14.8-slim` and installs dependencies from `requirements_for_docker.txt`, which is exported from `uv.lock`. To regenerate it after dependency updates, run:
 ```
 uv export --no-hashes --no-emit-project --no-dev -o requirements_for_docker.txt
 ```
@@ -115,39 +121,40 @@ uv export --no-hashes --no-emit-project --no-dev -o requirements_for_docker.txt
 1. Build the Docker Image
 
 In summary, this command creates a Docker image named "openmap-t1" based on the Dockerfile and files in your current directory.
-```
+```bash
 docker build -t openmap-t1 .
 ```
-* ```docker build```: This command builds a Docker image using the instructions provided in the Dockerfile.
-* ```-t openmap-t1```: The -t flag tags the image with the name "openmap-t1". This makes it easier to refer to later.
-* ```.```: The dot represents the build context, which means Docker will look for the Dockerfile and other necessary files in the current directory.
+* `docker build`: This command builds a Docker image using the instructions provided in the Dockerfile.
+* `-t openmap-t1`: The `-t` flag tags the image with the name "openmap-t1". This makes it easier to refer to later.
+* `.`: The dot represents the build context, which means Docker will look for the Dockerfile and other necessary files in the current directory.
 
 2. Run the Docker Container
-```
+```bash
 docker run --rm -it -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
-* ```docker run```: This starts a new container from a Docker image.
-* ```--rm```: Automatically removes the container when it stops running, keeping your system clean by not leaving behind stopped containers.
+* `docker run`: This starts a new container from a Docker image.
+* `--rm`: Automatically removes the container when it stops running, keeping your system clean by not leaving behind stopped containers.
 
-* ```-it```
+* `-it`
 Combines two options:
-   * ```-i``` keeps STDIN open (interactive mode).
-   * ```-t``` allocates a pseudo-TTY (allows terminal-like interaction).
+   * `-i` keeps STDIN open (interactive mode).
+   * `-t` allocates a pseudo-TTY (allows terminal-like interaction).
 
 Together, these options let you interact with the container through your terminal if needed.
 
-* ```-v "$(pwd):/app"```: Mounts your current working directory (the result of $(pwd)) into the /app directory inside the container. This means:
-   * Any files in your current folder are available inside the container under /app.
+* `-v "$(pwd):/app"`: Mounts your current working directory (the result of `$(pwd)`) into the `/app` directory inside the container. This means:
+   * Any files in your current folder are available inside the container under `/app`.
    * Any changes made inside the container (like output files) will be reflected on your host system.
 
-* ```openmap-t1```: This is the name of the Docker image from which the container is created. It should have been built previously using a command like ```docker build -t openmap-t1 .```.
+* `openmap-t1`: This is the name of the Docker image from which the container is created. It should have been built previously using a command like `docker build -t openmap-t1 .`.
 
-* ```-i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER```
+* `-i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER`
 These are the command-line arguments passed to the application running inside the container:
-   * ```-i INPUT_FOLDER```: Specifies the input folder path.
-   * ```-o OUTPUT_FOLDER```: Specifies the output folder path.
-   * ```-m MODEL_FOLDER```: Specifies the model folder path.
-Replace ```INPUT_FOLDER```, ```OUTPUT_FOLDER```, and ```MODEL_FOLDER``` with the appropriate directory names or paths that exist within the mounted ```/app``` directory (for example, `input`, `output`, and `model`).
+   * `-i INPUT_FOLDER`: Specifies the input folder path.
+   * `-o OUTPUT_FOLDER`: Specifies the output folder path.
+   * `-m MODEL_FOLDER`: Specifies the model folder path.
+
+  Replace `INPUT_FOLDER`, `OUTPUT_FOLDER`, and `MODEL_FOLDER` with the appropriate directory names or paths that exist within the mounted `/app` directory (for example, `input`, `output`, and `model`).
 
 # How to download the pretrained model.
 You can get the pretrained model from this link.
@@ -160,70 +167,89 @@ Using OpenMAP-T1 is straightforward. You can use it in a terminal on Linux, macO
 
 ## Basic Usage
 Run the script from your terminal using:
-```
+
+```bash
 # uv (if you installed with uv sync)
 uv run python src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
-```
+
+```bash
 # pip (activate virtual environment first: source .venv/bin/activate)
 python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
-```
+
+```bash
 # Docker
 docker run --rm -it -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
-```
+
+```bash
 # Save outputs as .nii (optional; default is .nii.gz)
 python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --output-ext .nii
 ```
-* **-i INPUT_FOLDER**: Specifies the folder containing the input brain MRI images.
+
+* **-i INPUT_FOLDER**: Specifies the folder containing the input brain MRI images (or a single `.nii` / `.nii.gz` file).
 * **-o OUTPUT_FOLDER**: Defines the folder where the results will be saved. This folder will be created automatically if it does not exist.
-* **-m MODEL_FOLDER**: Indicates the folder containing the pretrained models for processing.
+* **-m MODEL_FOLDER**: Indicates the folder containing the pretrained models for processing (e.g., `model/V3` for OpenMAP-T1 or `model/OpenMAP-T1c` for OpenMAP-T1c).
+* **--mode {auto, t1, t1c}**: Pipeline variant to run. Default is `auto`, which automatically detects `t1` (142-class `PNet`) or `t1c` (139-class `PNet` with sulcal CSF internal/external subdivision) from the weights in `-m`.
 * **--output-ext {.nii.gz, .nii}**: Output extension for generated NIfTI files. Default is `.nii.gz`.
 * **--output-space {native, conform, both}**: Voxel grid for saved NIfTI outputs in `cropped/`, `stripped/`, and `parcellated/`. Default is `native`.
    * `native`: Resample to the N4-corrected canonical input grid (default; same filenames as in earlier releases).
    * `conform`: Keep the 1 mm isotropic 256³ processing grid; filenames include the `_1mm` suffix.
    * `both`: Write both versions; 1 mm files are saved under `conform/` with the `_1mm` suffix.
+* **--batch-size**: Number of 2.5D slices processed per forward pass. Default is `16`.
+* **--no-amp**: Disable CUDA automatic mixed precision (run CUDA inference in full precision).
 
 ## Output Space
 Inference runs on a 1 mm isotropic grid internally. By default, saved parcellation maps and intermediate masks are resampled back to the N4-corrected canonical input geometry (`native`). To keep outputs on the 1 mm grid, or to save both grids, use `--output-space`:
-```
+
+```bash
 # uv
 uv run python src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --output-space conform
 uv run python src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --output-space both
 ```
-```
+
+```bash
 # pip
 python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --output-space conform
 python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --output-space both
 ```
+
 1 mm outputs use the `_1mm` suffix (for example, `A_Type1_Level5_1mm.nii.gz`, `A_cropped_mask_1mm.nii.gz`). The `original/` folder is always saved in the input-derived geometry. CSV regional volumes are always computed on the 1 mm grid, regardless of this option.
 
+## Optional Fast Processing Steps
 OpenMAP-T1 now allows you to perform only specific processing steps using the following mutually exclusive flags. By specifying these options, OpenMAP-T1 skips unnecessary processing steps, which can significantly reduce overall processing time.
 
 * **Only Face Cropping**: If you only want to perform face cropping and skip the rest of the processing steps, use:
-```
+
+```bash
 # uv
 uv run python src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-face-cropping
 ```
-```
+
+```bash
 # pip
 python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-face-cropping
 ```
-```
+
+```bash
 # Docker
 docker run --rm -it -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-face-cropping
 ```
+
 * **Only Skull Stripping**: If you want to perform only skull stripping and skip all other processing steps, use the skull stripping flag. Note that skull stripping requires face cropping as a prerequisite, so face cropping is not considered one of the "other processing" steps that are skipped, use:
-```
+
+```bash
 # uv
 uv run python src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-skull-stripping
 ```
-```
+
+```bash
 # pip
 python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-skull-stripping
 ```
-```
+
+```bash
 # Docker
 docker run --rm -it -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-skull-stripping
 ```
@@ -234,28 +260,32 @@ OpenMAP-T1 selects CUDA automatically when a GPU is available (`Using device: cu
 On **Linux or Windows (WSL2) with an NVIDIA GPU**, install the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) before using GPU inside Docker. Without `--gpus`, the container typically falls back to CPU even on a GPU host.
 
 Docker example with GPU:
-```
+
+```bash
 docker run --rm -it --gpus all -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
 
-To pin a **specific GPU** locally (for example, GPU 1), prepend ```CUDA_VISIBLE_DEVICES=N```:
-```
+To pin a **specific GPU** locally (for example, GPU 1), prepend `CUDA_VISIBLE_DEVICES=N`:
+
+```bash
 # uv
 CUDA_VISIBLE_DEVICES=1 uv run python src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
-```
+
+```bash
 # pip
 CUDA_VISIBLE_DEVICES=1 python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
 
 The same idea in Docker (for example, host GPU 1):
-```
+
+```bash
 docker run --rm -it --gpus '"device=1"' -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
 
 On **macOS**, Docker runs in a Linux VM and cannot use the host Apple Silicon GPU (MPS). Use a native install (`uv` or `pip`) on Mac for MPS acceleration, or run Docker on CPU.
 
-If an error occurs for Windows users, please change ```Python3``` to ```Python```.
+If an error occurs for Windows users, please change `python3` to `python`.
 
 # Folder
 All input images must be NIfTI files (`.nii` or `.nii.gz`). By default, generated NIfTI outputs are saved as `.nii.gz` (use `--output-ext .nii` to save as `.nii`).
@@ -268,7 +298,8 @@ INPUT_FOLDER/
    ├ *.nii or .nii.gz
 
 OUTPUT_FOLDER/
-   ├── failed_cases.csv
+   ├── processing_log.txt
+   ├── failed_cases.csv             # only when a case fails, is skipped, or is low_volume
    ├── A
    │   ├── cropped
    │   │   ├── A_cropped_mask.nii.gz
@@ -283,7 +314,8 @@ OUTPUT_FOLDER/
    │   │   ├── A_Type2_Level2.csv
    │   │   ├── A_Type2_Level3.csv
    │   │   ├── A_Type2_Level4.csv
-   │   │   └── A_Type2_Level5.csv
+   │   │   ├── A_Type2_Level5.csv
+   │   │   └── A_SylvianRatio.csv   # only in OpenMAP-T1c mode (t1c)
    │   ├── original
    │   │   ├── A_N4.nii.gz
    │   │   └── A.nii.gz
@@ -319,15 +351,17 @@ MODEL_FOLDER/
    └ HNet/HNet.pth
 ```
 
-The pretrained models use one weight file per network. PNet and HNet each use a single model for all anatomical views; orientation is encoded at inference time.
+The pretrained models use one weight file per network (`model/V3` for OpenMAP-T1, `model/OpenMAP-T1c` for OpenMAP-T1c). `PNet` (and `HNet` in OpenMAP-T1c) uses a single model for all anatomical views; orientation is encoded at inference time.
+
+All runtime console messages (stdout, stderr, and progress logs) are automatically saved to `processing_log.txt` at the root of `OUTPUT_FOLDER`.
 
 If any case fails, is skipped by a short-circuit flag, or yields a clearly abnormal total brain volume (default: &lt; 10,000 mm³ on the 1 mm isotropic grid), it is listed in `failed_cases.csv` at the root of `OUTPUT_FOLDER`. Columns: `case_id`, `input_path`, `status` (`failed`, `skipped`, or `low_volume`), `reason`, and `total_brain_volume_mm3`.
 
 ## Level Metadata (JHU-Atlas)
-The [`level/`](level/) folder contains lookup tables and hierarchy definitions related to the JHU-atlas-based parcellation used by OpenMAP-T1.
+The [`level/`](level/) folder contains lookup tables and hierarchy definitions related to the JHU-atlas-based parcellation, organized into `level/OpenMAP-T1/` (standard OpenMAP-T1) and `level/OpenMAP-T1c/` (OpenMAP-T1c with internal/external sulcal CSF and subarachnoid cistern definitions).
 
-- `level/OpenMAP-T1_multilevel_lookup_table_dictionary.csv` includes the official ROI names for **Type1 Level5** and their corresponding multilevel mappings.
-- Type1 text dictionaries are named `level/Type1Level1.txt` to `level/Type1Level5.txt`.
+- `level/OpenMAP-T1/OpenMAP-T1_multilevel_lookup_table_dictionary.csv` and `level/OpenMAP-T1c/OpenMAP-T1c_multilevel_lookup_table_dictionary.csv` include the official ROI names for **Type1 Level5** and their corresponding multilevel mappings.
+- Type1 text dictionaries are named `Type1Level1.txt` to `Type1Level5.txt` inside each subfolder (`level/OpenMAP-T1/` and `level/OpenMAP-T1c/`).
 
 # Supplementary information
 ![supplementary_level](media/Multilevel.png)
@@ -354,11 +388,18 @@ We ran all our experiments on NVIDIA RTX3090 GPUs with 24 GB memory. For inferen
 * **Can OpenMAP-T1 use Apple Silicon (MPS) on MacBook?**<br>
 Yes. OpenMAP-T1 supports MPS (Metal Performance Shaders) on Apple Silicon Macs (M1/M2/M3/M4). When running on a MacBook with Apple Silicon, it automatically uses MPS for GPU acceleration if available, which is faster than CPU-only execution.
 
+* **What is the difference between OpenMAP-T1 and OpenMAP-T1c?**<br>
+OpenMAP-T1 is designed for detailed parcellation of the brain parenchyma, with a particular focus on white matter structures. In contrast, OpenMAP-T1c is trained using labels registered from T2-weighted MRI, placing greater emphasis on the segmentation of perivascular and subarachnoid CSF spaces (such as cortical sulci, Sylvian fissures, and subarachnoid cisterns). If you want even more detailed and accurate CSF segmentation (when T2-weighted MRI is available), we recommend using [OpenMAP-T2](https://github.com/OishiLab/OpenMAP-T2).<br>
+![OpenMAP-T1 vs OpenMAP-T1c](media/OpenMAP-T1_vs_OpenMAP-T1c.png)
+
 * **What is the difference between Type 1 and Type 2?**<br>
 Type 1 outputs the brain surface structure by separating it into the cortex and the subcortical white matter. Typically, Type 1 is used in most cases. In contrast, Type 2 outputs the cortex and the subcortical white matter as a single ROI. Type 2 may be employed when it is desirable to minimize the number of ROIs in data analysis or when quantifying parameters such as regional cerebral blood flow using low-resolution PET images.
 
 * **What units are the regional volumes in the CSV outputs, and why are they whole numbers?**<br>
 Volumes are in cubic millimeters (mm³). They are reported as integers with no fractional part because they are computed as voxel counts per region on the preprocessed image that has been conformed to 1 × 1 × 1 mm isotropic spacing, so each voxel represents exactly 1 mm³. By default, saved NIfTI parcellation maps are resampled back to the N4-corrected canonical input geometry (`--output-space native`). Use `--output-space conform` or `both` if you also want NIfTI files on the same 1 mm grid as the CSV volumes (filenames include `_1mm`).
+
+* **What is `{basename}_SylvianRatio.csv` (e.g., `A_SylvianRatio.csv`)?**<br>
+Generated in OpenMAP-T1c mode (`t1c`), this file reports the ratio of the bilateral Sylvian fissure volume to the total sulcal CSF volume of the frontal, central, and parietal sulci: `(Sylvian Fissure L+R) / (Frontal Sulcus LR + Central Sulcus LR + Parietal Sulcus LR)`. It is intended as a quantitative index for evaluating conditions such as Disproportionately Enlarged Subarachnoid Space Hydrocephalus (DESH) in idiopathic normal pressure hydrocephalus (iNPH).
 
 * **What is recorded in `failed_cases.csv`?**<br>
 At the end of a batch run, OpenMAP-T1 writes `failed_cases.csv` under `OUTPUT_FOLDER` when at least one case failed, was skipped by `--only-face-cropping` / `--only-skull-stripping`, or produced an abnormally small total labeled brain volume (&lt; 10,000 mm³ by default).

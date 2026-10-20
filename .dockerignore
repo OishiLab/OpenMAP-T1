@@ -3,6 +3,9 @@ model/
 input/
 output/
 
+# Local training checkpoints (not part of the inference image)
+20260821/
+
 # Version control and local dev
 .git/
 .gitignore

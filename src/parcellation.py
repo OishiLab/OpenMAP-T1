@@ -14,16 +14,16 @@ import nibabel as nib
 import numpy as np
 
 # Project-local utilities
-from utils.pipeline.cropping import cropping
-from utils.pipeline.hemisphere import hemisphere
-from utils.models.load_model import load_model
+from utils.models.load_model import MODE_CHOICES, load_model
 from utils.output.make_csv import make_csv
 from utils.output.make_level import create_parcellated_images
 from utils.output.output_space import OUTPUT_SPACE_CHOICES, save_label_volume
+from utils.output.processing_log import ProcessingLog, capture_console_output
+from utils.pipeline.cropping import cropping
+from utils.pipeline.hemisphere import hemisphere
 from utils.pipeline.parcellate import parcellation
 from utils.pipeline.postprocessing import postprocessing
 from utils.pipeline.preprocessing import preprocessing
-from utils.output.processing_log import ProcessingLog
 from utils.pipeline.stripping import stripping
 
 
@@ -34,7 +34,7 @@ def create_parser():
     Returns:
         argparse.Namespace: Parsed command-line arguments.
     """
-    parser = argparse.ArgumentParser(description="Run inference with OpenMAP-T1 on T1-weighted brain MRI.")
+    parser = argparse.ArgumentParser(description="Run inference with OpenMAP-T1 / OpenMAP-T1c on T1-weighted brain MRI.")
     parser.add_argument(
         "-i",
         required=True,
@@ -48,7 +48,18 @@ def create_parser():
     parser.add_argument(
         "-m",
         required=True,
-        help="Folder containing pretrained model weights required by OpenMAP-T1.",
+        help="Folder containing pretrained model weights (OpenMAP-T1 or OpenMAP-T1c).",
+    )
+    parser.add_argument(
+        "--mode",
+        default="auto",
+        choices=list(MODE_CHOICES),
+        help=(
+            "Pipeline variant to run. "
+            "'auto': detect from model weights in -m (142-class PNet -> t1, 139-class PNet -> t1c). "
+            "'t1': OpenMAP-T1. "
+            "'t1c': OpenMAP-T1c."
+        ),
     )
     parser.add_argument(
         "--output-ext",
@@ -67,6 +78,17 @@ def create_parser():
             "'both': write both versions (1 mm outputs under conform/)."
         ),
     )
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=16,
+        help="Slices per forward pass (default: 16).",
+    )
+    parser.add_argument(
+        "--no-amp",
+        action="store_true",
+        help="Disable CUDA automatic mixed precision.",
+    )
 
     # Mutually exclusive short-circuit modes: run only a subset of the full pipeline.
     group = parser.add_mutually_exclusive_group()
@@ -82,13 +104,15 @@ def create_parser():
     )
 
     args = parser.parse_args()
+    if args.batch_size < 1:
+        parser.error("--batch-size must be >= 1")
     print("Parsed arguments:", args)
     return args
 
 
 def main():
     """
-    Execute the OpenMAP-T1 parcellation pipeline.
+    Execute the OpenMAP-T1 / OpenMAP-T1c parcellation pipeline.
 
     Processing outline per input NIfTI:
       1) Read image and convert to canonical orientation; persist a float32 copy.
@@ -102,157 +126,199 @@ def main():
       9) Conform output back to original geometry and save Level 5 labels.
      10) Generate auxiliary parcellated images for visualization.
     """
-    # Citation block printed at runtime for proper attribution.
-    print(
-        "\n#######################################################################\n"
-        "Please cite the following paper when using OpenMAP-T1:\n"
-        "Kei Nishimaki, Kengo Onda, Kumpei Ikuta, Jill Chotiyanonta, Yuto Uchida, Susumu Mori, "
-        "Hitoshi Iyatomi, Kenichi Oishi, Alzheimer's Disease Neuroimaging Initiative, and "
-        "Australian Imaging Biomarkers and Lifestyle Flagship Study of Ageing (2024).\n"
-        "OpenMAP-T1: A Rapid Deep-Learning Approach to Parcellate 280 Anatomical Regions to Cover the Whole Brain.\n"
-        "paper: https://onlinelibrary.wiley.com/doi/full/10.1002/hbm.70063.\n"
-        "Published in Human Brain Mapping.\n"
-        "#######################################################################\n"
-    )
+    with capture_console_output() as console_log:
+        # Citation block printed at runtime for proper attribution.
+        print(
+            "\n#######################################################################\n"
+            "Please cite the following paper when using OpenMAP-T1:\n"
+            "Kei Nishimaki, Kengo Onda, Kumpei Ikuta, Jill Chotiyanonta, Yuto Uchida, Susumu Mori, "
+            "Hitoshi Iyatomi, Kenichi Oishi, Alzheimer's Disease Neuroimaging Initiative, and "
+            "Australian Imaging Biomarkers and Lifestyle Flagship Study of Ageing (2024).\n"
+            "OpenMAP-T1: A Rapid Deep-Learning Approach to Parcellate 280 Anatomical Regions to Cover the Whole Brain.\n"
+            "paper: https://onlinelibrary.wiley.com/doi/full/10.1002/hbm.70063.\n"
+            "Published in Human Brain Mapping.\n"
+            "#######################################################################\n"
+        )
 
-    # Parse command-line arguments.
-    opt = create_parser()
+        # Parse command-line arguments.
+        opt = create_parser()
+        console_log.bind_output_folder(opt.o)
 
-    # Device selection order: CUDA → Apple MPS → CPU.
-    # Note: MPS is available on Apple Silicon with recent PyTorch builds.
-    if torch.cuda.is_available():
-        device = torch.device("cuda")
-    elif torch.backends.mps.is_available():
-        device = torch.device("mps")
-    else:
-        device = torch.device("cpu")
-    print(f"Using device: {device}")
+        # Device selection order: CUDA → Apple MPS → CPU.
+        if torch.cuda.is_available():
+            device = torch.device("cuda")
+        elif torch.backends.mps.is_available():
+            device = torch.device("mps")
+        else:
+            device = torch.device("cpu")
+        use_amp = (not opt.no_amp) and device.type == "cuda"
+        print(f"Using device: {device} (amp={use_amp})")
 
-    # Load pretrained models required by the pipeline components.
-    try:
-        cnet, ssnet, pnet, hnet = load_model(opt, device)
-        print("Load complete !!")
-    except Exception as e:
-        print(f"Error during model loading: {e}")
-        sys.exit(1)
-
-    # Basic sanity check on input directory.
-    if not os.path.isdir(opt.i):
-        print(f"Error: Input directory {opt.i} does not exist.")
-        sys.exit(1)
-    print(f"Input directory {opt.i} exists.")
-
-    # Enumerate NIfTI inputs recursively, supporting both .nii and .nii.gz.
-    # Note: Double 'sorted' is redundant but harmless; ensures deterministic order.
-    pathes = sorted(sorted(glob.glob(os.path.join(opt.i, "**/*.nii"), recursive=True)) + sorted(glob.glob(os.path.join(opt.i, "**/*.nii.gz"), recursive=True)))
-    print(f"Found {len(pathes)} NIfTI files in {opt.i}")
-
-    processing_log = ProcessingLog()
-    os.makedirs(opt.o, exist_ok=True)
-
-    # Process each input image independently.
-    for path in tqdm(pathes):
-        basename = None
+        # Load pretrained models required by the pipeline components.
         try:
-            # Derive a clean base name without any extension.
-            basename = os.path.splitext(os.path.basename(path))[0]
-            if basename.endswith(".nii"):
-                # Handles the .nii.gz case where os.path.splitext removes only .gz.
-                basename = os.path.splitext(basename)[0]
-
-            # Create a per-case output subdirectory.
-            output_dir = os.path.join(opt.o, basename)
-            os.makedirs(output_dir, exist_ok=True)
-
-            # Load image, reorient to RAS+ canonical, and drop degenerate dimensions.
-            odata = nib.squeeze_image(nib.as_closest_canonical(nib.load(path)))
-
-            # Persist a canonicalized float32 copy for provenance.
-            nii = nib.Nifti1Image(odata.get_fdata().astype(np.float32), affine=odata.affine)
-            os.makedirs(os.path.join(output_dir, "original"), exist_ok=True)
-            nib.save(nii, os.path.join(output_dir, f"original/{basename}{opt.output_ext}"))
-
-            # Preprocessing: intensity normalization, spacing/orientation harmonization, etc.
-            # Returns (original-like) 'odata' and a standardized 'data' used by the networks.
-            odata, data = preprocessing(path, output_dir, basename, opt.output_ext)
-
-            # Face cropping using the cropping network (returns cropped volume + spatial shift).
-            cropped, shift = cropping(
-                output_dir, basename, odata, data, cnet, device, opt.output_ext, opt.output_space
-            )
-
-            # Early exit if the user requested cropping only.
-            if opt.only_face_cropping:
-                processing_log.add_skipped(
-                    path,
-                    basename,
-                    "Pipeline stopped early (--only-face-cropping).",
-                )
-                continue
-
-            # Skull stripping (brain extraction).
-            stripped = stripping(
-                output_dir,
-                basename,
-                cropped,
-                odata,
-                data,
-                ssnet,
-                shift,
-                device,
-                opt.output_ext,
-                opt.output_space,
-            )
-
-            # Early exit if the user requested up to skull stripping only.
-            if opt.only_skull_stripping:
-                processing_log.add_skipped(
-                    path,
-                    basename,
-                    "Pipeline stopped early (--only-skull-stripping).",
-                )
-                continue
-
-            # Parcellation into anatomical labels.
-            parcellated = parcellation(stripped, pnet, device)
-
-            # Hemisphere mask/labels to distinguish left/right brain.
-            separated = hemisphere(stripped, hnet, device)
-
-            # Post-processing to fuse parcellation with hemisphere info and to restore shifts.
-            output = postprocessing(parcellated, separated, shift, device)
-
-            processing_log.check_low_volume(path, basename, output)
-
-            # Quantify regional volumes and export to CSV.
-            df = make_csv(output, output_dir, basename)
-
-            save_label_volume(
-                output_dir,
-                "parcellated",
-                basename,
-                "Type1_Level5",
-                output,
-                odata,
-                data,
-                opt.output_ext,
-                opt.output_space,
-            )
-
-            create_parcellated_images(
-                output, output_dir, basename, odata, data, opt.output_ext, opt.output_space
-            )
-
-            # Explicit cleanup of large arrays to ease memory pressure in long batches.
-            del odata, data
-
+            cnet, ssnet, pnet, hnet = load_model(opt, device)
+            print("Load complete !!")
         except Exception as e:
-            # Robust per-file error isolation: proceed to the next case on failure.
-            print(f"Error processing {path}: {e}")
-            processing_log.add_failed(path, basename or os.path.basename(path), str(e))
-            continue
+            print(f"Error during model loading: {e}")
+            sys.exit(1)
 
-    processing_log.save(opt.o)
+        # Basic sanity check on input path (accepts either a directory or a single NIfTI file).
+        if os.path.isfile(opt.i):
+            if not (opt.i.endswith(".nii") or opt.i.endswith(".nii.gz")):
+                print(f"Error: Input file {opt.i} is not a NIfTI file (.nii or .nii.gz).")
+                sys.exit(1)
+            pathes = [opt.i]
+            print(f"Input file {opt.i} exists.")
+        elif os.path.isdir(opt.i):
+            print(f"Input directory {opt.i} exists.")
+            # Enumerate NIfTI inputs recursively, supporting both .nii and .nii.gz.
+            pathes = sorted(
+                sorted(glob.glob(os.path.join(opt.i, "**/*.nii"), recursive=True))
+                + sorted(glob.glob(os.path.join(opt.i, "**/*.nii.gz"), recursive=True))
+            )
+            print(f"Found {len(pathes)} NIfTI files in {opt.i}")
+        else:
+            print(f"Error: Input path {opt.i} does not exist.")
+            sys.exit(1)
+
+        processing_log = ProcessingLog()
+        os.makedirs(opt.o, exist_ok=True)
+
+        # Process each input image independently.
+        for path in tqdm(pathes):
+            basename = None
+            try:
+                # Derive a clean base name without any extension.
+                basename = os.path.splitext(os.path.basename(path))[0]
+                if basename.endswith(".nii"):
+                    # Handles the .nii.gz case where os.path.splitext removes only .gz.
+                    basename = os.path.splitext(basename)[0]
+
+                # Create a per-case output subdirectory.
+                output_dir = os.path.join(opt.o, basename)
+                os.makedirs(output_dir, exist_ok=True)
+
+                # Load image, reorient to RAS+ canonical, and drop degenerate dimensions.
+                odata = nib.squeeze_image(nib.as_closest_canonical(nib.load(path)))
+
+                # Persist a canonicalized float32 copy for provenance.
+                nii = nib.Nifti1Image(odata.get_fdata().astype(np.float32), affine=odata.affine)
+                os.makedirs(os.path.join(output_dir, "original"), exist_ok=True)
+                nib.save(nii, os.path.join(output_dir, f"original/{basename}{opt.output_ext}"))
+
+                # Preprocessing: intensity normalization, spacing/orientation harmonization, etc.
+                odata, data = preprocessing(path, output_dir, basename, opt.output_ext)
+
+                # Face cropping using the cropping network (returns cropped volume + spatial shift).
+                cropped, shift = cropping(
+                    output_dir,
+                    basename,
+                    odata,
+                    data,
+                    cnet,
+                    device,
+                    opt.output_ext,
+                    opt.output_space,
+                    batch_size=opt.batch_size,
+                    use_amp=use_amp,
+                )
+
+                # Early exit if the user requested cropping only.
+                if opt.only_face_cropping:
+                    processing_log.add_skipped(
+                        path,
+                        basename,
+                        "Pipeline stopped early (--only-face-cropping).",
+                    )
+                    continue
+
+                # Skull stripping (brain extraction).
+                stripped = stripping(
+                    output_dir,
+                    basename,
+                    cropped,
+                    odata,
+                    data,
+                    ssnet,
+                    shift,
+                    device,
+                    opt.output_ext,
+                    opt.output_space,
+                    mode=opt.mode,
+                    batch_size=opt.batch_size,
+                    use_amp=use_amp,
+                )
+
+                # Early exit if the user requested up to skull stripping only.
+                if opt.only_skull_stripping:
+                    processing_log.add_skipped(
+                        path,
+                        basename,
+                        "Pipeline stopped early (--only-skull-stripping).",
+                    )
+                    continue
+
+                # Parcellation into anatomical labels.
+                parcellated = parcellation(
+                    stripped,
+                    pnet,
+                    device,
+                    mode=opt.mode,
+                    batch_size=opt.batch_size,
+                    use_amp=use_amp,
+                )
+
+                # Hemisphere mask/labels to distinguish left/right brain.
+                separated = hemisphere(
+                    stripped,
+                    hnet,
+                    device,
+                    mode=opt.mode,
+                    batch_size=opt.batch_size,
+                    use_amp=use_amp,
+                )
+
+                # Post-processing to fuse parcellation with hemisphere info and to restore shifts.
+                output = postprocessing(parcellated, separated, shift, device, mode=opt.mode)
+
+                processing_log.check_low_volume(path, basename, output)
+
+                # Quantify regional volumes and export to CSV.
+                df = make_csv(output, output_dir, basename, mode=opt.mode)
+
+                save_label_volume(
+                    output_dir,
+                    "parcellated",
+                    basename,
+                    "Type1_Level5",
+                    output,
+                    odata,
+                    data,
+                    opt.output_ext,
+                    opt.output_space,
+                )
+
+                create_parcellated_images(
+                    output,
+                    output_dir,
+                    basename,
+                    odata,
+                    data,
+                    opt.output_ext,
+                    opt.output_space,
+                    mode=opt.mode,
+                )
+
+                # Explicit cleanup of large arrays to ease memory pressure in long batches.
+                del odata, data
+
+            except Exception as e:
+                # Robust per-file error isolation: proceed to the next case on failure.
+                print(f"Error processing {path}: {e}")
+                processing_log.add_failed(path, basename or os.path.basename(path), str(e))
+                continue
+
+        processing_log.save(opt.o)
     return
 
 

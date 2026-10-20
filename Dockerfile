@@ -1,5 +1,5 @@
-# Python 3.13.2のスリム版イメージを使用
-FROM python:3.13.2-slim
+# Newest CPython slim image that still has PyTorch wheels (3.15 has none yet).
+FROM python:3.14.8-slim
 
 # Pythonのバイトコード生成抑制とログ出力を即時にする設定
 ENV PYTHONDONTWRITEBYTECODE=1

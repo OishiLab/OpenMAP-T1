@@ -4,7 +4,7 @@
 
 ![Explain](../media/Application.png)
 
-# OpenMAP-T1
+# OpenMAP-T1 and OpenMAP-T1c
 ![Figure3](../media/Representative.png)
 
 **语言**: [English](../README.md) | [日本語 (Japanese)](README-ja.md) | [中文 (Chinese)](README-zh.md)
@@ -12,7 +12,7 @@
 [![](http://img.shields.io/badge/medRxiv-10.1101/2024.01.18.24301494-B31B1B.svg)](https://www.medrxiv.org/content/10.1101/2024.01.18.24301494v1)
 [![Human Brain Mapping](https://img.shields.io/badge/Published-Human%20Brain%20Mapping-%2300629B)](https://onlinelibrary.wiley.com/doi/full/10.1002/hbm.70063)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1fmfkxxZjChExnl5cHITYkNYgTu3MZ7Ql#scrollTo=xwZxyL5ewVNF)
-![Python 3.11+](https://img.shields.io/badge/Python-3.11+-brightgreen.svg)
+![Python 3.12+](https://img.shields.io/badge/Python-3.12+-brightgreen.svg)
 [![HuggingFace Application](https://img.shields.io/badge/HuggingFace-Application-orange.svg)](https://huggingface.co/spaces/OishiLab/OpenMAP-T1)
 
 [![GitHub — 40 stars — 感谢](https://img.shields.io/badge/GitHub-40%20Stars%20%E2%80%94%20%E6%84%9F%E8%B0%A2!-D5312A?style=for-the-badge&logo=github&logoColor=white)](https://github.com/OishiLab/OpenMAP-T1)
@@ -30,10 +30,16 @@ The Richman Family Precision Medicine Center of Excellence in Alzheimer's Diseas
 在线应用: https://huggingface.co/spaces/OishiLab/OpenMAP-T1<br>
 已发表于 **Human Brain Mapping**<br>
 
+## OpenMAP 系列
+OpenMAP 是将全脑划分为 280 个解剖区域的深度学习模型系列。
+
+- **OpenMAP-T1** 与 **OpenMAP-T1c** 都包含在本仓库中，输入均为 T1 加权 MRI。OpenMAP-T1 侧重于脑实质（尤其是白质）的精细分区。OpenMAP-T1c 使用从 T2 加权 MRI 配准得到的标签进行训练，更加关注脑沟、外侧裂和蛛网膜下腔脑池等 CSF 周边区域。
+- 若需根据 T2 加权 MRI 对 CSF 进行更精细的分割，请使用 **[OpenMAP-T2](https://github.com/OishiLab/OpenMAP-T2)**。
+
 ## 运行环境
-- **Python 3.11 及以上**（pandas 3.0 要求）
-- **PyTorch 2.12 及以上**（`uv sync` 会自动安装；使用 pip 时需单独安装）
-- 其他固定版本：nibabel 5.4.2、pandas 3.0.3、scipy 1.17.1、SimpleITK 2.5.5、tqdm 4.68.2
+- **Python 3.12 及以上**（scipy 1.18 要求）。Docker 镜像使用仍提供 PyTorch wheel 的最新版本 Python 3.14.8。
+- **PyTorch 2.14 及以上**（`uv sync` 会自动安装；使用 pip 时需单独安装）
+- 其他固定版本：nibabel 5.4.2、pandas 3.0.6、scipy 1.18.1、SimpleITK 2.5.6、tqdm 4.70.1
 
 # 安装
 **OpenMAP-T1 基于 JHU-atlas，可在约 50 秒/例（GPU）内输出全脑 280 区分区结果。**
@@ -79,7 +85,7 @@ uv sync
 
 ## 使用 pip 安装（可选）
 
-0. 请安装 **Python 3.11 及以上** 并创建虚拟环境。<br>
+0. 请安装 **Python 3.12 及以上** 并创建虚拟环境。<br>
 
 1. 克隆仓库并进入目录:
 ```
@@ -88,7 +94,7 @@ cd OpenMAP-T1
 ```
 2. 安装与你环境匹配的 PyTorch: https://pytorch.org/
 
-最新稳定版 PyTorch（2.12+）需要 **Python 3.10+**；本项目因 pandas 3.0 需要 **Python 3.11+**。
+最新稳定版 PyTorch（2.14+）需要 **Python 3.10+**；本项目因 scipy 1.18 需要 **Python 3.12+**。
 
 选择环境后，页面会显示相应的安装命令。
 
@@ -106,7 +112,7 @@ pip install -r requirements.txt
 5. 即可运行 OpenMAP-T1！
 
 # Docker 安装说明
-Docker 镜像基于 `python:3.13.2-slim`，使用从 `uv.lock` 导出的 `requirements_for_docker.txt` 安装依赖。更新依赖后可运行：
+Docker 镜像基于 `python:3.14.8-slim`，使用从 `uv.lock` 导出的 `requirements_for_docker.txt` 安装依赖。更新依赖后可运行：
 ```
 uv export --no-hashes --no-emit-project --no-dev -o requirements_for_docker.txt
 ```
@@ -114,23 +120,23 @@ uv export --no-hashes --no-emit-project --no-dev -o requirements_for_docker.txt
 1. 构建 Docker 镜像
 
 该命令会根据当前目录中的 `Dockerfile` 及文件创建名为 `openmap-t1` 的镜像。
-```
+```bash
 docker build -t openmap-t1 .
 ```
-* ```docker build```：根据 Dockerfile 中的说明构建镜像。
-* ```-t openmap-t1```：为镜像指定名称标签，便于后续引用。
-* ```.```：构建上下文为当前目录。
+* `docker build`：根据 `Dockerfile` 中的说明构建镜像。
+* `-t openmap-t1`：为镜像指定名称标签，便于后续引用。
+* `.`：构建上下文为当前目录。
 
 2. 运行 Docker 容器
-```
+```bash
 docker run --rm -it -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
-* ```docker run```：从镜像启动新容器。
-* ```--rm```：容器停止后自动删除，避免残留已停止的容器。
-* ```-it```：组合选项，```-i``` 保持标准输入打开，```-t``` 分配伪终端，便于交互。
-* ```-v "$(pwd):/app"```：将当前目录挂载到容器内的 `/app`，主机与容器可共享文件。
-* ```openmap-t1```：镜像名称，需先通过 ```docker build -t openmap-t1 .``` 构建。
-* ```-i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER```：传递给应用程序的参数。请将 ```INPUT_FOLDER```、```OUTPUT_FOLDER``` 和 ```MODEL_FOLDER``` 替换为挂载目录 `/app` 下存在的路径（例如 `input`、`output`、`model`）。
+* `docker run`：从镜像启动新容器。
+* `--rm`：容器停止后自动删除，避免残留已停止的容器。
+* `-it`：组合选项，`-i` 保持标准输入打开，`-t` 分配伪终端，便于交互。
+* `-v "$(pwd):/app"`：将当前目录挂载到容器内的 `/app`，主机与容器可共享文件。
+* `openmap-t1`：镜像名称，需先通过 `docker build -t openmap-t1 .` 构建。
+* `-i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER`：传递给应用程序的参数。请将 `INPUT_FOLDER`、`OUTPUT_FOLDER` 和 `MODEL_FOLDER` 替换为挂载目录 `/app` 下存在的路径（例如 `input`、`output`、`model`）。
 
 # 预训练模型下载
 可通过以下链接申请下载：
@@ -143,71 +149,89 @@ OpenMAP-T1 使用简单。可在 Linux、macOS 或 Windows 的终端中运行，
 
 ## 基本用法
 在终端中运行：
-```
+
+```bash
 # uv（通过 uv sync 安装时）
 uv run python src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
-```
+
+```bash
 # pip（先激活虚拟环境：source .venv/bin/activate）
 python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
-```
+
+```bash
 # Docker
 docker run --rm -it -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
-```
+
+```bash
 # 可选：将输出保存为 .nii（默认输出为 .nii.gz）
 python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --output-ext .nii
 ```
-* **-i INPUT_FOLDER**：输入脑 MRI 图像所在目录。
+
+* **-i INPUT_FOLDER**：输入脑 MRI 图像所在目录（或单个 `.nii` / `.nii.gz` 文件）。
 * **-o OUTPUT_FOLDER**：结果输出目录，不存在时会自动创建。
-* **-m MODEL_FOLDER**：包含预训练模型的目录。
+* **-m MODEL_FOLDER**：包含预训练模型的目录（例如 OpenMAP-T1 使用 `model/V3`，OpenMAP-T1c 使用 `model/OpenMAP-T1c`）。
+* **--mode {auto, t1, t1c}**：指定运行的流程类型。默认为 `auto`，会根据 `-m` 中的模型权重（142 类 `PNet` 为 `t1`，139 类 `PNet` 为 `t1c`）自动识别。
 * **--output-ext {.nii.gz, .nii}**：输出 NIfTI 扩展名，默认为 `.nii.gz`。
 * **--output-space {native, conform, both}**：`cropped/`、`stripped/`、`parcellated/` 中 NIfTI 的体素网格。默认为 `native`。
    * `native`：重采样回 N4 校正后的 canonical 输入网格（默认；文件名与旧版相同）。
    * `conform`：保持 1 mm 等方 256³ 处理网格；文件名带 `_1mm` 后缀。
    * `both`：同时保存两种版本；1 mm 文件保存在 `conform/` 下，文件名带 `_1mm`。
+* **--batch-size**：每次前向推理处理的 2.5D 切片数，默认为 `16`。
+* **--no-amp**：禁用 CUDA 自动混合精度（AMP），以全精度运行推理。
 
 ## 输出空间
 推理在内部的 1 mm 等方网格上进行。默认将分区图与中间掩膜重采样回 N4 校正后的 canonical 输入几何（`native`）。若需保持 1 mm 网格或同时保存两种版本，请使用 `--output-space`：
-```
+
+```bash
 # uv
 uv run python src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --output-space conform
 uv run python src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --output-space both
 ```
-```
+
+```bash
 # pip
 python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --output-space conform
 python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --output-space both
 ```
+
 1 mm 输出的文件名带 `_1mm` 后缀（例如 `A_Type1_Level5_1mm.nii.gz`、`A_cropped_mask_1mm.nii.gz`）。`original/` 文件夹始终按输入几何保存。CSV 区域体积始终在处理用的 1 mm 网格上计算，与此选项无关。
 
 ## 可选加速流程
 OpenMAP-T1 支持以下互斥标志，仅执行特定步骤以缩短处理时间。
 
 * **仅人脸裁剪**：若只需裁剪并跳过后续步骤：
-```
+
+```bash
 # uv
 uv run python src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-face-cropping
 ```
-```
+
+```bash
 # pip
 python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-face-cropping
 ```
-```
+
+```bash
 # Docker
 docker run --rm -it -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-face-cropping
 ```
+
 * **仅去颅骨**：若只需去颅骨并跳过其他步骤。去颅骨以人脸裁剪为前提，裁剪步骤不会被跳过：
-```
+
+```bash
 # uv
 uv run python src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-skull-stripping
 ```
-```
+
+```bash
 # pip
 python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-skull-stripping
 ```
-```
+
+```bash
 # Docker
 docker run --rm -it -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-skull-stripping
 ```
@@ -218,28 +242,32 @@ OpenMAP-T1 在检测到 GPU 时会自动使用 CUDA（启动时显示 `Using dev
 在 **Linux 或 Windows（WSL2）+ NVIDIA GPU** 上于 Docker 内使用 GPU 前，需先安装 [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)。若不添加 `--gpus`，即使在 GPU 主机上容器内也常回落为 CPU。
 
 Docker 使用 GPU 的示例：
-```
+
+```bash
 docker run --rm -it --gpus all -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
 
-**本地**指定 GPU（例如 GPU 1）时，在命令前添加 ```CUDA_VISIBLE_DEVICES=N```：
-```
+**本地**指定 GPU（例如 GPU 1）时，在命令前添加 `CUDA_VISIBLE_DEVICES=N`：
+
+```bash
 # uv
 CUDA_VISIBLE_DEVICES=1 uv run python src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
-```
+
+```bash
 # pip
 CUDA_VISIBLE_DEVICES=1 python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
 
 Docker 中也可同样指定（例如主机 GPU 1）：
-```
+
+```bash
 docker run --rm -it --gpus '"device=1"' -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
 
 在 **macOS** 上，Docker 运行于 Linux 虚拟机，无法使用主机 Apple Silicon GPU（MPS）。Mac 上若需 MPS 加速请使用原生安装（`uv` 或 `pip`）；Docker 请按 CPU 运行考虑。
 
-Windows 用户若出现错误，请将 ```Python3``` 改为 ```Python```。
+Windows 用户若出现错误，请将 `python3` 改为 `python`。
 
 # 文件夹结构
 输入图像须为 NIfTI 格式（`.nii` 或 `.nii.gz`）。默认输出为 `.nii.gz`（可用 `--output-ext .nii` 改为 `.nii`）。
@@ -252,7 +280,8 @@ INPUT_FOLDER/
    ├ *.nii or .nii.gz
 
 OUTPUT_FOLDER/
-   ├── failed_cases.csv
+   ├── processing_log.txt
+   ├── failed_cases.csv             # 仅在出现失败、跳过或体积异常偏小病例时生成
    ├── A
    │   ├── cropped
    │   │   ├── A_cropped_mask.nii.gz
@@ -267,7 +296,8 @@ OUTPUT_FOLDER/
    │   │   ├── A_Type2_Level2.csv
    │   │   ├── A_Type2_Level3.csv
    │   │   ├── A_Type2_Level4.csv
-   │   │   └── A_Type2_Level5.csv
+   │   │   ├── A_Type2_Level5.csv
+   │   │   └── A_SylvianRatio.csv   # 仅在 OpenMAP-T1c 模式（t1c）下生成
    │   ├── original
    │   │   ├── A_N4.nii.gz
    │   │   └── A.nii.gz
@@ -303,15 +333,17 @@ MODEL_FOLDER/
    └ HNet/HNet.pth
 ```
 
-预训练模型每个网络使用一个权重文件。PNet 和 HNet 各使用单一模型处理所有切面，推理时通过编码切面方向加以区分。
+预训练模型每个网络使用一个权重文件（OpenMAP-T1 为 `model/V3`，OpenMAP-T1c 为 `model/OpenMAP-T1c`）。`PNet`（以及 OpenMAP-T1c 的 `HNet`）使用单一模型处理所有切面，推理时通过编码切面方向加以区分。
+
+运行时的所有终端输出（标准输出、标准错误及进度日志）都会自动保存在 `OUTPUT_FOLDER` 根目录下的 `processing_log.txt` 中。
 
 若处理失败、被短接标志跳过，或全脑标签体积异常偏小（默认：1 mm 等方网格上 &lt; 10,000 mm³），会记录在 `OUTPUT_FOLDER` 根目录的 `failed_cases.csv` 中。列包括：`case_id`、`input_path`、`status`（`failed`、`skipped` 或 `low_volume`）、`reason`、`total_brain_volume_mm3`。
 
 ## Level 元数据（JHU-Atlas）
-[`level/`](../level/) 文件夹包含 OpenMAP-T1 使用的 JHU-atlas 分层定义与映射表。
+[`level/`](../level/) 文件夹包含 JHU-atlas 分层定义与映射表，分别整理在 `level/OpenMAP-T1/`（标准 OpenMAP-T1）和 `level/OpenMAP-T1c/`（包含脑沟 CSF 内外分割及蛛网膜下腔脑池的 OpenMAP-T1c）下。
 
-- `level/OpenMAP-T1_multilevel_lookup_table_dictionary.csv` 记录了 **Type1 Level5** 的正式 ROI 名称及其多层级映射关系。
-- Type1 文本字典命名为 `level/Type1Level1.txt` 到 `level/Type1Level5.txt`。
+- `level/OpenMAP-T1/OpenMAP-T1_multilevel_lookup_table_dictionary.csv` 与 `level/OpenMAP-T1c/OpenMAP-T1c_multilevel_lookup_table_dictionary.csv` 记录了 **Type1 Level5** 的正式 ROI 名称及其多层级映射关系。
+- Type1 文本字典在各自子文件夹下命名为 `Type1Level1.txt` 到 `Type1Level5.txt`。
 
 # 补充信息
 ![supplementary_level](../media/Multilevel.png)
@@ -337,11 +369,18 @@ OpenMAP-T1 采用 JHU 图谱。
 * **OpenMAP-T1 是否支持 MacBook 的 Apple Silicon（MPS）？**<br>
 支持。OpenMAP-T1 在 Apple Silicon Mac（M1/M2/M3/M4）上支持 MPS（Metal Performance Shaders）。可用时会自动使用 MPS 加速，比纯 CPU 更快。
 
+* **OpenMAP-T1 和 OpenMAP-T1c 有何区别？**<br>
+OpenMAP-T1 旨在对脑实质（尤其是白质结构）进行精细分区；而 OpenMAP-T1c 使用从 T2 加权 MRI 配准得到的标签进行训练，更加侧重于脑脊液（CSF）周边区域（如脑沟、外侧裂及蛛网膜下腔脑池等）的分割。如果您希望对 CSF 进行更加精细和准确的分割（在有 T2 加权图像的情况下），推荐使用 [OpenMAP-T2](https://github.com/OishiLab/OpenMAP-T2)。<br>
+![OpenMAP-T1 vs OpenMAP-T1c](../media/OpenMAP-T1_vs_OpenMAP-T1c.png)
+
 * **Type 1 和 Type 2 有何区别？**<br>
-Type 1 将脑表面结构分为皮层和皮层下白质，通常用于大多数情况。Type 2 将皮层和皮层下白质作为单一 ROI 输出，适用于希望减少 ROI 数量或使用低分辨率 PET 量化局所脑血流量等参数时。
+Type 1 将脑表面结构分为皮层和皮层下白质，通常用于大多数情况。Type 2 将皮层和皮层下白质作为单一 ROI 输出，适用于希望减少 ROI 数量或使用低分辨率 PET 量化局部脑血流量等参数时。
 
 * **CSV 输出的区域体积单位是什么？为何是整数？**<br>
-单位为立方毫米（mm³）。数值为整数，是因为在前处理中将图像 conform 到 1×1×1 mm 等方体素后，以各 ROI 的体素数计算体积，每个体素对应 1 mm³。默认将 NIfTI 分区图重采样回 N4 校正后的 canonical 输入几何（`--output-space native`）。若也需要与 CSV 相同 1 mm 网格的 NIfTI，请使用 `--output-space conform` 或 `both`（1 mm 版文件名带 `_1mm`）。
+单位为立方毫米（mm³）。数值为整数，是因为在预处理中将图像 conform 到 1×1×1 mm 各向同性体素后，以各 ROI 的体素数计算体积，每个体素对应 1 mm³。默认将 NIfTI 分区图重采样回 N4 校正后的 canonical 输入几何（`--output-space native`）。若也需要与 CSV 相同 1 mm 网格的 NIfTI，请使用 `--output-space conform` 或 `both`（1 mm 版文件名带 `_1mm`）。
+
+* **`{basename}_SylvianRatio.csv`（例如 `A_SylvianRatio.csv`）是什么？**<br>
+该文件在 OpenMAP-T1c 模式（`t1c`）下生成，记录双侧外侧裂（Sylvian fissure）体积与额叶、中央沟及顶叶脑沟 CSF 总体积之比：`(Sylvian Fissure L+R) / (Frontal Sulcus LR + Central Sulcus LR + Parietal Sulcus LR)`。可用于定量评估特发性正常压力脑积水（iNPH）中的蛛网膜下腔不成比例扩大（DESH）等特征。
 
 * **`failed_cases.csv` 记录什么内容？**<br>
 批量处理结束时，若有失败、被 `--only-face-cropping` / `--only-skull-stripping` 跳过，或全脑标签体积异常偏小（默认 &lt; 10,000 mm³）的病例，会在 `OUTPUT_FOLDER` 下生成 `failed_cases.csv`。

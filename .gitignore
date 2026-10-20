@@ -166,5 +166,6 @@ cython_debug/
 model/
 input/
 /output/
+20260821/
 .DS_store
 Mfile.py

@@ -4,7 +4,7 @@
 
 ![Explain](../media/Application.png)
 
-# OpenMAP-T1
+# OpenMAP-T1 and OpenMAP-T1c
 ![Figure3](../media/Representative.png)
 
 **言語**: [English](../README.md) | [日本語 (Japanese)](README-ja.md) | [中文 (Chinese)](README-zh.md)
@@ -12,7 +12,7 @@
 [![](http://img.shields.io/badge/medRxiv-10.1101/2024.01.18.24301494-B31B1B.svg)](https://www.medrxiv.org/content/10.1101/2024.01.18.24301494v1)
 [![Human Brain Mapping](https://img.shields.io/badge/Published-Human%20Brain%20Mapping-%2300629B)](https://onlinelibrary.wiley.com/doi/full/10.1002/hbm.70063)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1fmfkxxZjChExnl5cHITYkNYgTu3MZ7Ql#scrollTo=xwZxyL5ewVNF)
-![Python 3.11+](https://img.shields.io/badge/Python-3.11+-brightgreen.svg)
+![Python 3.12+](https://img.shields.io/badge/Python-3.12+-brightgreen.svg)
 [![HuggingFace Application](https://img.shields.io/badge/HuggingFace-Application-orange.svg)](https://huggingface.co/spaces/OishiLab/OpenMAP-T1)
 
 [![GitHub — 40 stars — 感謝](https://img.shields.io/badge/GitHub-40%E2%98%85%20%E6%84%9F%E8%AC%9D!-D5312A?style=for-the-badge&logo=github&logoColor=white)](https://github.com/OishiLab/OpenMAP-T1)
@@ -30,10 +30,16 @@ The Richman Family Precision Medicine Center of Excellence in Alzheimer's Diseas
 クラウドアプリケーション: https://huggingface.co/spaces/OishiLab/OpenMAP-T1<br>
 **Human Brain Mapping** に掲載済み<br>
 
+## OpenMAPシリーズ
+OpenMAPは、全脳を280の解剖学的領域に分割する深層学習モデルのシリーズです。
+
+- **OpenMAP-T1** と **OpenMAP-T1c** はこのリポジトリに含まれ、いずれもT1強調MRIを入力とします。OpenMAP-T1は脳実質、とくに白質の詳細な分類を目的としています。OpenMAP-T1cはT2強調画像からレジストレーションしたラベルで学習しており、脳溝・シルビウス裂・くも膜下槽などCSF周辺により注目します。
+- CSFをより詳細にセグメンテーションする場合は、T2強調MRIを入力とする **[OpenMAP-T2](https://github.com/OishiLab/OpenMAP-T2)** を利用してください。
+
 ## 動作要件
-- **Python 3.11 以降**（pandas 3.0 の要件）
-- **PyTorch 2.12 以降**（`uv sync` で自動インストール。pip 利用時は別途インストール）
-- その他の固定バージョン: nibabel 5.4.2, pandas 3.0.3, scipy 1.17.1, SimpleITK 2.5.5, tqdm 4.68.2
+- **Python 3.12 以降**（scipy 1.18 の要件）。Docker イメージは、PyTorch の wheel がある最新版である Python 3.14.8 を使います。
+- **PyTorch 2.14 以降**（`uv sync` で自動インストール。pip 利用時は別途インストール）
+- その他の固定バージョン: nibabel 5.4.2, pandas 3.0.6, scipy 1.18.1, SimpleITK 2.5.6, tqdm 4.70.1
 
 # インストール
 **OpenMAP-T1は、JHUアトラスに基づいて全脳を280の解剖学的領域に50秒/症例で分割します。**
@@ -79,7 +85,7 @@ uv sync
 
 ## pipを使用したインストール（代替方法）
 
-0. Python 3.11 以降のインストールと仮想環境の作成<br>
+0. Python 3.12 以降のインストールと仮想環境の作成<br>
 
 1. このリポジトリをクローンし、リポジトリ内に移動します：
 ```
@@ -89,7 +95,7 @@ cd OpenMAP-T1
 2. 環境に合わせてPyTorchをインストールしてください。<br>
 https://pytorch.org/
 
-最新の安定版 PyTorch（2.12 以降）は **Python 3.10 以降**が必要です。本プロジェクトは pandas 3.0 のため **Python 3.11 以降**が必要です。
+最新の安定版 PyTorch（2.14 以降）は **Python 3.10 以降**が必要です。本プロジェクトは scipy 1.18 のため **Python 3.12 以降**が必要です。
 
 環境を選択すると、必要なコマンドが表示されます。
 
@@ -107,7 +113,7 @@ pip install -r requirements.txt
 5. OpenMAP-T1を実行できます！！
 
 # Docker インストール手順
-Docker イメージは `python:3.13.2-slim` をベースとし、`uv.lock` からエクスポートした `requirements_for_docker.txt` を使用して依存関係をインストールします。依存関係を更新した場合は、次のコマンドで再生成できます：
+Docker イメージは `python:3.14.8-slim` をベースとし、`uv.lock` からエクスポートした `requirements_for_docker.txt` を使用して依存関係をインストールします。依存関係を更新した場合は、次のコマンドで再生成できます：
 ```
 uv export --no-hashes --no-emit-project --no-dev -o requirements_for_docker.txt
 ```
@@ -115,39 +121,40 @@ uv export --no-hashes --no-emit-project --no-dev -o requirements_for_docker.txt
 1. Dockerイメージのビルド
 
 要約すると、このコマンドは `Dockerfile` と現在のディレクトリ内のファイルに基づいて "openmap-t1" という名前のDockerイメージを作成します。
-```
+```bash
 docker build -t openmap-t1 .
 ```
-* ```docker build```: このコマンドは `Dockerfile` に記載された指示に従ってDockerイメージをビルドします。
-* ```-t openmap-t1```: -t フラグはイメージに "openmap-t1" という名前（タグ）を付けます。これにより後で参照しやすくなります。
-* ```.```: ドットはビルドコンテキストを表し、Dockerが `Dockerfile` やその他の必要なファイルを現在のディレクトリで探すことを意味します。
+* `docker build`: このコマンドは `Dockerfile` に記載された指示に従ってDockerイメージをビルドします。
+* `-t openmap-t1`: `-t` フラグはイメージに "openmap-t1" という名前（タグ）を付けます。これにより後で参照しやすくなります。
+* `.`: ドットはビルドコンテキストを表し、Dockerが `Dockerfile` やその他の必要なファイルを現在のディレクトリで探すことを意味します。
 
 2. Dockerコンテナの実行
-```
+```bash
 docker run --rm -it -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
-* ```docker run```: Dockerイメージから新しいコンテナを開始します。
-* ```--rm```: 実行が停止したときに自動的にコンテナを削除し、停止したコンテナを残さないようにしてシステムをクリーンに保ちます。
+* `docker run`: Dockerイメージから新しいコンテナを開始します。
+* `--rm`: 実行が停止したときに自動的にコンテナを削除し、停止したコンテナを残さないようにしてシステムをクリーンに保ちます。
 
-* ```-it```
+* `-it`
 2つのオプションを組み合わせています：
-   * ```-i``` STDINを開いたままにします（インタラクティブモード）。
-   * ```-t``` 疑似TTYを割り当てます（端末のような対話を可能にします）。
+   * `-i` STDINを開いたままにします（インタラクティブモード）。
+   * `-t` 疑似TTYを割り当てます（端末のような対話を可能にします）。
 
 これらを合わせることで、必要に応じて端末を通じてコンテナと対話できるようになります。
 
-* ```-v "$(pwd):/app"```: 現在の作業ディレクトリ（$(pwd)の結果）をコンテナ内の `/app` ディレクトリにマウントします。これは以下のことを意味します：
+* `-v "$(pwd):/app"`: 現在の作業ディレクトリ（`$(pwd)` の結果）をコンテナ内の `/app` ディレクトリにマウントします。これは以下のことを意味します：
    * 現在のフォルダ内のすべてのファイルがコンテナ内の `/app` で利用可能になります。
    * コンテナ内で行われた変更（出力ファイルなど）はホストシステムに反映されます。
 
-* ```openmap-t1```: コンテナの作成元となるDockerイメージの名前です。これは以前に ```docker build -t openmap-t1 .``` コマンドを使用してビルドされている必要があります。
+* `openmap-t1`: コンテナの作成元となるDockerイメージの名前です。これは以前に `docker build -t openmap-t1 .` コマンドを使用してビルドされている必要があります。
 
-* ```-i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER```
+* `-i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER`
 これらはコンテナ内で実行されるアプリケーションに渡されるコマンドライン引数です：
-   * ```-i INPUT_FOLDER```: 入力フォルダのパスを指定します。
-   * ```-o OUTPUT_FOLDER```: 出力フォルダのパスを指定します。
-   * ```-m MODEL_FOLDER```: モデルフォルダのパスを指定します。
-   ```INPUT_FOLDER```、```OUTPUT_FOLDER```、および ```MODEL_FOLDER``` を、マウントされた ```/app``` ディレクトリ内に存在する適切なディレクトリ名またはパスに置き換えてください（例: `input`、`output`、`model`）。
+   * `-i INPUT_FOLDER`: 入力フォルダのパスを指定します。
+   * `-o OUTPUT_FOLDER`: 出力フォルダのパスを指定します。
+   * `-m MODEL_FOLDER`: モデルフォルダのパスを指定します。
+
+  `INPUT_FOLDER`、`OUTPUT_FOLDER`、および `MODEL_FOLDER` を、マウントされた `/app` ディレクトリ内に存在する適切なディレクトリ名またはパスに置き換えてください（例: `input`、`output`、`model`）。
 
 # 事前学習済みモデルのダウンロード方法
 事前学習済みモデルはこのリンクから入手できます。
@@ -160,71 +167,89 @@ OpenMAP-T1の使用は簡単です。Linux、macOS、または Windows のター
 
 ## 基本的な使用法
 ターミナルから以下のコマンドを実行します：
-```
+
+```bash
 # uv（uv syncでインストールした場合）
 uv run python src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
-```
+
+```bash
 # pip（事前に仮想環境を有効化: source .venv/bin/activate）
 python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
-```
+
+```bash
 # Docker
 docker run --rm -it -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
-```
+
+```bash
 # 出力を .nii で保存する場合（任意。デフォルトは .nii.gz）
 python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --output-ext .nii
 ```
-* **-i INPUT_FOLDER**: 入力脳MRI画像が含まれるフォルダを指定します。
+
+* **-i INPUT_FOLDER**: 入力脳MRI画像が含まれるフォルダ（または単一の `.nii` / `.nii.gz` ファイル）を指定します。
 * **-o OUTPUT_FOLDER**: 結果が保存されるフォルダを定義します。このフォルダが存在しない場合は自動的に作成されます。
-* **-m MODEL_FOLDER**: 処理用の事前学習済みモデルが含まれるフォルダを指定します。
+* **-m MODEL_FOLDER**: 処理用の事前学習済みモデルが含まれるフォルダを指定します（例: OpenMAP-T1 は `model/V3`、OpenMAP-T1c は `model/OpenMAP-T1c`）。
+* **--mode {auto, t1, t1c}**: 実行するパイプライン種別を指定します。デフォルトは `auto` で、`-m` 内のモデル重み（142クラス `PNet` なら `t1`、139クラス `PNet` なら `t1c`）から自動判別します。
 * **--output-ext {.nii.gz, .nii}**: 生成されるNIfTI画像の拡張子を指定します。デフォルトは `.nii.gz` です。
 * **--output-space {native, conform, both}**: `cropped/`・`stripped/`・`parcellated/` に保存するNIfTIのボクセルグリッドを指定します。デフォルトは `native` です。
    * `native`: N4補正後の canonical 入力グリッドにリサンプルして保存（従来どおりのファイル名）。
    * `conform`: 1 mm 等方・256³ の処理グリッドのまま保存。ファイル名に `_1mm` サフィックスを付与。
    * `both`: 両方を保存。1 mm 版は `conform/` 配下に `_1mm` 付きで出力。
+* **--batch-size**: 1回のフォワードパスで推論する2.5Dスライス枚数を指定します。デフォルトは `16` です。
+* **--no-amp**: CUDA の自動混合精度（AMP）を無効化し、フル精度で推論します。
 
 ## 出力空間（Output Space）
 推論は内部で 1 mm 等方グリッド上で行われます。デフォルトでは、パーセレーション画像と中間マスクは N4 補正後の canonical 入力ジオメトリ（`native`）に戻して保存されます。1 mm グリッドのまま保存する、または両方保存する場合は `--output-space` を指定します：
-```
+
+```bash
 # uv
 uv run python src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --output-space conform
 uv run python src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --output-space both
 ```
-```
+
+```bash
 # pip
 python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --output-space conform
 python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --output-space both
 ```
+
 1 mm 出力のファイル名には `_1mm` が付きます（例: `A_Type1_Level5_1mm.nii.gz`、`A_cropped_mask_1mm.nii.gz`）。`original/` フォルダは常に入力由来のジオメトリで保存されます。CSV の領域体積は、このオプションに関係なく常に 1 mm グリッド上で計算されます。
 
 ## オプションの高速処理ステップ
 OpenMAP-T1では、以下の排他的なフラグを使用して特定の処理ステップのみを実行できるようになりました。これらのオプションを指定することで、OpenMAP-T1は不要な処理ステップをスキップし、全体の処理時間を大幅に短縮できます。
 
 * **顔のクロッピングのみ (Only Face Cropping)**: 顔のクロッピングのみを行い、残りの処理ステップをスキップしたい場合に使用します：
-```
+
+```bash
 # uv
 uv run python src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-face-cropping
 ```
-```
+
+```bash
 # pip
 python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-face-cropping
 ```
-```
+
+```bash
 # Docker
 docker run --rm -it -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-face-cropping
 ```
+
 * **頭蓋除去のみ (Only Skull Stripping)**: 頭蓋除去（スカルストリッピング）のみを行い、他のすべての処理ステップをスキップしたい場合は、スカルストリッピングフラグを使用します。スカルストリッピングには前提条件として顔のクロッピングが必要であるため、顔のクロッピングはスキップされる「他の処理」ステップには含まれないことに注意してください：
-```
+
+```bash
 # uv
 uv run python src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-skull-stripping
 ```
-```
+
+```bash
 # pip
 python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-skull-stripping
 ```
-```
+
+```bash
 # Docker
 docker run --rm -it -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-skull-stripping
 ```
@@ -235,28 +260,32 @@ OpenMAP-T1 は GPU が利用可能な場合、起動時に自動的に CUDA を�
 **Linux または Windows（WSL2）+ NVIDIA GPU** で Docker 内の GPU を使うには、事前に [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) のインストールが必要です。`--gpus` を付けないと、GPU マシン上でもコンテナ内は CPU 落ちになることがあります。
 
 Docker で GPU を使う例:
-```
+
+```bash
 docker run --rm -it --gpus all -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
 
-**特定の GPU** をローカル実行で使う場合（例: GPU 1）は、コマンドの前に ```CUDA_VISIBLE_DEVICES=N``` を付けます:
-```
+**特定の GPU** をローカル実行で使う場合（例: GPU 1）は、コマンドの前に `CUDA_VISIBLE_DEVICES=N` を付けます:
+
+```bash
 # uv
 CUDA_VISIBLE_DEVICES=1 uv run python src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
-```
+
+```bash
 # pip
 CUDA_VISIBLE_DEVICES=1 python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
 
 Docker でも同様に指定できます（例: ホストの GPU 1）:
-```
+
+```bash
 docker run --rm -it --gpus '"device=1"' -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER
 ```
 
 **macOS** では Docker は Linux VM 上で動作するため、ホストの Apple Silicon GPU（MPS）は利用できません。Mac で MPS を使う場合はネイティブインストール（`uv` または `pip`）を、Docker は CPU 実行を想定してください。
 
-Windowsユーザーでエラーが発生する場合は、 ```Python3``` を ```Python``` に変更してください。
+Windowsユーザーでエラーが発生する場合は、`python3` を `python` に変更してください。
 
 # フォルダ構成
 入力画像はNIfTI形式（`.nii` または `.nii.gz`）である必要があります。生成されるNIfTI出力はデフォルトで `.nii.gz` です（`.nii` で保存したい場合は `--output-ext .nii` を指定）。
@@ -269,7 +298,8 @@ INPUT_FOLDER/
    ├ *.nii or .nii.gz
 
 OUTPUT_FOLDER/
-   ├── failed_cases.csv
+   ├── processing_log.txt
+   ├── failed_cases.csv             # 失敗・スキップ・極端な小体積の症例があるときのみ
    ├── A
    │   ├── cropped
    │   │   ├── A_cropped_mask.nii.gz
@@ -284,7 +314,8 @@ OUTPUT_FOLDER/
    │   │   ├── A_Type2_Level2.csv
    │   │   ├── A_Type2_Level3.csv
    │   │   ├── A_Type2_Level4.csv
-   │   │   └── A_Type2_Level5.csv
+   │   │   ├── A_Type2_Level5.csv
+   │   │   └── A_SylvianRatio.csv   # OpenMAP-T1c モード（t1c）のときのみ
    │   ├── original
    │   │   ├── A_N4.nii.gz
    │   │   └── A.nii.gz
@@ -320,15 +351,17 @@ MODEL_FOLDER/
    └ HNet/HNet.pth
 ```
 
-配布されている事前学習済みモデルは、各ネットワークに1つの重みファイルを使用します。PNet と HNet は、推論時に断面方向をエンコードする単一モデルで全断面を処理します。
+配布されている事前学習済みモデルは、各ネットワークに1つの重みファイルを使用します（OpenMAP-T1 は `model/V3`、OpenMAP-T1c は `model/OpenMAP-T1c`）。`PNet`（および OpenMAP-T1c の `HNet`）は、推論時に断面方向をエンコードする単一モデルで全断面を処理します。
+
+実行時のコンソール出力（標準出力・標準エラー出力・進捗ログ）は、自動的に `OUTPUT_FOLDER` 直下の `processing_log.txt` に保存されます。
 
 処理に失敗した症例、短絡フラグでスキップした症例、または全脳体積が明らかに異常に小さい症例（デフォルト: 1 mm 等方グリッド上で 10,000 mm³ 未満）は、`OUTPUT_FOLDER` 直下の `failed_cases.csv` に記録されます。列は `case_id`, `input_path`, `status`（`failed`, `skipped`, `low_volume`）, `reason`, `total_brain_volume_mm3` です。
 
 ## Levelメタデータ（JHU-Atlas）
-[`level/`](../level/) フォルダには、OpenMAP-T1 の JHU-atlas ベースのパーセレーションに対応する階層定義・対応表が含まれています。
+[`level/`](../level/) フォルダには、JHU-atlas ベースのパーセレーションに対応する階層定義・対応表が `level/OpenMAP-T1/`（標準 OpenMAP-T1 用）と `level/OpenMAP-T1c/`（脳溝 CSF の内外分割・くも膜下槽を含む OpenMAP-T1c 用）に分けて整理されています。
 
-- `level/OpenMAP-T1_multilevel_lookup_table_dictionary.csv` には、**Type1 Level5** の正式ROI名称と、各階層レベルへの対応情報が記載されています。
-- Type1 のテキスト辞書は `level/Type1Level1.txt` から `level/Type1Level5.txt` という命名です。
+- `level/OpenMAP-T1/OpenMAP-T1_multilevel_lookup_table_dictionary.csv` および `level/OpenMAP-T1c/OpenMAP-T1c_multilevel_lookup_table_dictionary.csv` には、**Type1 Level5** の正式ROI名称と、各階層レベルへの対応情報が記載されています。
+- Type1 のテキスト辞書はそれぞれのフォルダ内に `Type1Level1.txt` から `Type1Level5.txt` として格納されています。
 
 # 補足情報
 ![supplementary_level](../media/Multilevel.png)
@@ -354,11 +387,18 @@ OpenMAP-T1はJHUアトラスを採用しています。
 * **MacBookのApple Silicon（MPS）で利用できますか？**<br>
 はい。OpenMAP-T1はApple Silicon Mac（M1/M2/M3/M4）搭載のMacBookでMPS（Metal Performance Shaders）をサポートしています。Apple Silicon搭載のMacBookで実行すると、利用可能な場合は自動的にMPSによるGPUアクセラレーションが使用され、CPUのみの実行より高速に処理されます。
 
+* **OpenMAP-T1とOpenMAP-T1cの違いは何ですか？**<br>
+OpenMAP-T1は脳実質（特に白質構造）を中心に詳細に分類することを目的としています。一方、OpenMAP-T1cはT2強調画像からレジストレーションしたラベルを用いて学習しており、脳溝やシルビウス裂、くも膜下槽などのCSF（脳脊髄液）周辺領域により注目してセグメンテーションできるように設計されています。さらに詳細かつ高精度にCSFをセグメンテーションしたい場合（T2強調画像が利用可能な場合）は、[OpenMAP-T2](https://github.com/OishiLab/OpenMAP-T2) のご使用をお勧めします。<br>
+![OpenMAP-T1 vs OpenMAP-T1c](../media/OpenMAP-T1_vs_OpenMAP-T1c.png)
+
 * **Type 1とType 2の違いは何ですか？**<br>
 Type 1は脳の表面構造を皮質と皮質下白質に分離して出力します。通常、ほとんどの場合でType 1が使用されます。対照的に、Type 2は皮質と皮質下白質を単一のROIとして出力します。Type 2は、データ分析においてROIの数を最小限に抑えたい場合や、低解像度のPET画像を使用して局所脳血流量などのパラメータを定量化する場合に採用されることがあります。
 
 * **CSVに出力される各領域の体積の単位は何ですか。また、なぜ小数点以下がありませんか。**<br>
 単位は立方ミリメートル（mm³）です。値が小数のない整数になるのは、前処理で画像を 1×1×1 mm の等方向ボクセルに合わせた（conform した）座標系で、各ROIのボクセル数を数えて体積を求めているためです。このタイミングでは各ボクセルの物理体積が 1 mm³ に対応するため、体積は整数で表されます。デフォルトでは NIfTI パーセレーション画像は N4 補正後の canonical 入力グリッドに戻して保存されます（`--output-space native`）。CSV と同じ 1 mm グリッドの NIfTI も欲しい場合は `--output-space conform` または `both` を指定してください（1 mm 版のファイル名には `_1mm` が付きます）。
+
+* **`{basename}_SylvianRatio.csv`（例: `A_SylvianRatio.csv`）とは何ですか。**<br>
+OpenMAP-T1c モード（`t1c`）で出力されるファイルで、前頭葉・中心溝・頭頂葉の脳溝 CSF 合計体積に対する左右シルビウス裂の体積比 `(Sylvian Fissure L+R) / (Frontal Sulcus LR + Central Sulcus LR + Parietal Sulcus LR)` を記録したものです。特発性正常圧水頭症（iNPH）における DESH（くも膜下腔の不均衡な拡大）などの評価指標として利用できます。
 
 * **`failed_cases.csv` には何が記録されますか。**<br>
 バッチ処理の終了時に、失敗した症例、`--only-face-cropping` / `--only-skull-stripping` でスキップした症例、または全脳ラベル体積が異常に小さい症例（デフォルト 10,000 mm³ 未満）が1件以上ある場合、`OUTPUT_FOLDER` 直下に `failed_cases.csv` が出力されます。
