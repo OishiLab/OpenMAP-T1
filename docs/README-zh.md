@@ -15,7 +15,7 @@
 ![Python 3.12+](https://img.shields.io/badge/Python-3.12+-brightgreen.svg)
 [![HuggingFace Application](https://img.shields.io/badge/HuggingFace-Application-orange.svg)](https://huggingface.co/spaces/OishiLab/OpenMAP-T1)
 
-[![GitHub — 40 stars — 感谢](https://img.shields.io/badge/GitHub-40%20Stars%20%E2%80%94%20%E6%84%9F%E8%B0%A2!-D5312A?style=for-the-badge&logo=github&logoColor=white)](https://github.com/OishiLab/OpenMAP-T1)
+[![GitHub — 50 stars — 感谢](https://img.shields.io/badge/GitHub-50%20Stars%20%E2%80%94%20%E6%84%9F%E8%B0%A2!-D5312A?style=for-the-badge&logo=github&logoColor=white)](https://github.com/OishiLab/OpenMAP-T1)
 
 **OpenMAP-T1：一种快速深度学习全脑分区方法，可覆盖 280 个解剖区域**<br>
 **作者**: [Kei Nishimaki](https://scholar.google.com/citations?user=iJPjUEkAAAAJ&hl=ja), [Kengo Onda](https://scholar.google.com/citations?user=GEXxaywAAAAJ&hl=en), [Kumpei Ikuta](https://scholar.google.com/citations?user=Q9h-OP8AAAAJ&hl=ja), [Jill Chotiyanonta](https://www.researchgate.net/profile/Jill-Chotiyanonta), [Yuto Uchida](https://scholar.google.com/citations?user=rKPaAF4AAAAJ&hl=ja), [Susumu Mori](https://scholar.google.com/citations?user=eiGSZdMAAAAJ&hl=en), [Hitoshi Iyatomi](https://scholar.google.com/citations?user=ghyQxvIAAAAJ&hl=ja), [Kenichi Oishi](https://www.hopkinsmedicine.org/profiles/details/kenichi-oishi)<br>
