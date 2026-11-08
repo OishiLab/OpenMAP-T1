@@ -14,6 +14,7 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1fmfkxxZjChExnl5cHITYkNYgTu3MZ7Ql#scrollTo=xwZxyL5ewVNF)
 ![Python 3.12+](https://img.shields.io/badge/Python-3.12+-brightgreen.svg)
 [![HuggingFace Application](https://img.shields.io/badge/HuggingFace-Application-orange.svg)](https://huggingface.co/spaces/OishiLab/OpenMAP-T1)
+![OpenMAP series: T1](https://img.shields.io/badge/OpenMAP%20series-T1%20%7C%20T1c-blue.svg)
 
 [![GitHub — 50 stars — 感谢](https://img.shields.io/badge/GitHub-50%20Stars%20%E2%80%94%20%E6%84%9F%E8%B0%A2!-D5312A?style=for-the-badge&logo=github&logoColor=white)](https://github.com/OishiLab/OpenMAP-T1)
 
@@ -30,18 +31,18 @@ The Richman Family Precision Medicine Center of Excellence in Alzheimer's Diseas
 在线应用: https://huggingface.co/spaces/OishiLab/OpenMAP-T1<br>
 已发表于 **Human Brain Mapping**<br>
 
-## OpenMAP 系列
+## 🧠 OpenMAP 系列
 OpenMAP 是将全脑划分为 280 个解剖区域的深度学习模型系列。
 
 - **OpenMAP-T1** 与 **OpenMAP-T1c** 都包含在本仓库中，输入均为 T1 加权 MRI。OpenMAP-T1 侧重于脑实质（尤其是白质）的精细分区。OpenMAP-T1c 使用从 T2 加权 MRI 配准得到的标签进行训练，更加关注脑沟、外侧裂和蛛网膜下腔脑池等 CSF 周边区域。
 - 若需根据 T2 加权 MRI 对 CSF 进行更精细的分割，请使用 **[OpenMAP-T2](https://github.com/OishiLab/OpenMAP-T2)**。
 
-## 运行环境
+## 📋 运行环境
 - **Python 3.12 及以上**（scipy 1.18 要求）。Docker 镜像使用仍提供 PyTorch wheel 的最新版本 Python 3.14.8。
 - **PyTorch 2.14 及以上**（`uv sync` 会自动安装；使用 pip 时需单独安装）
 - 其他固定版本：nibabel 5.4.2、pandas 3.0.6、scipy 1.18.1、SimpleITK 2.5.6、tqdm 4.70.1
 
-# 安装
+# 📦 安装
 **OpenMAP-T1 基于 JHU-atlas，可在约 50 秒/例（GPU）内输出全脑 280 区分区结果。**
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1fmfkxxZjChExnl5cHITYkNYgTu3MZ7Ql#scrollTo=xwZxyL5ewVNF)
@@ -60,7 +61,7 @@ OpenMAP 是将全脑划分为 280 个解剖区域的深度学习模型系列。
 
    **Windows:**
    ```powershell
-   powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+   powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
    ```
 
    或使用 pip:
@@ -111,7 +112,7 @@ pip install -r requirements.txt
 
 5. 即可运行 OpenMAP-T1！
 
-# Docker 安装说明
+# 🐳 Docker 安装说明
 Docker 镜像基于 `python:3.14.8-slim`，使用从 `uv.lock` 导出的 `requirements_for_docker.txt` 安装依赖。更新依赖后可运行：
 ```
 uv export --no-hashes --no-emit-project --no-dev -o requirements_for_docker.txt
@@ -138,13 +139,13 @@ docker run --rm -it -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER
 * `openmap-t1`：镜像名称，需先通过 `docker build -t openmap-t1 .` 构建。
 * `-i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER`：传递给应用程序的参数。请将 `INPUT_FOLDER`、`OUTPUT_FOLDER` 和 `MODEL_FOLDER` 替换为挂载目录 `/app` 下存在的路径（例如 `input`、`output`、`model`）。
 
-# 预训练模型下载
+# ⬇️ 预训练模型下载
 可通过以下链接申请下载：
 [预训练模型下载链接](https://forms.office.com/Pages/ResponsePage.aspx?id=OPSkn-axO0eAP4b4rt8N7Iz6VabmlEBIhG4j3FiMk75UQUxBMkVPTzlIQTQ1UEZJSFY1NURDNzRERC4u)
 
 ![image](../media/Download_pretrained.png)
 
-# 所有命令
+# 💻 所有命令
 OpenMAP-T1 使用简单。可在 Linux、macOS 或 Windows 的终端中运行，支持 CPU 和 GPU；GPU 速度更快，建议优先使用。以下是最小示例。
 
 ## 基本用法
@@ -236,7 +237,7 @@ python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --o
 docker run --rm -it -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-skull-stripping
 ```
 
-## GPU 使用
+## ⚡ GPU 使用
 OpenMAP-T1 在检测到 GPU 时会自动使用 CUDA（启动时显示 `Using device: cuda`）。建议尽可能使用 GPU 运行。单次运行使用一块 GPU。
 
 在 **Linux 或 Windows（WSL2）+ NVIDIA GPU** 上于 Docker 内使用 GPU 前，需先安装 [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)。若不添加 `--gpus`，即使在 GPU 主机上容器内也常回落为 CPU。
@@ -339,13 +340,13 @@ MODEL_FOLDER/
 
 若处理失败、被短接标志跳过，或全脑标签体积异常偏小（默认：1 mm 等方网格上 &lt; 10,000 mm³），会记录在 `OUTPUT_FOLDER` 根目录的 `failed_cases.csv` 中。列包括：`case_id`、`input_path`、`status`（`failed`、`skipped` 或 `low_volume`）、`reason`、`total_brain_volume_mm3`。
 
-## Level 元数据（JHU-Atlas）
+## 🗺️ Level 元数据（JHU-Atlas）
 [`level/`](../level/) 文件夹包含 JHU-atlas 分层定义与映射表，分别整理在 `level/OpenMAP-T1/`（标准 OpenMAP-T1）和 `level/OpenMAP-T1c/`（包含脑沟 CSF 内外分割及蛛网膜下腔脑池的 OpenMAP-T1c）下。
 
 - `level/OpenMAP-T1/OpenMAP-T1_multilevel_lookup_table_dictionary.csv` 与 `level/OpenMAP-T1c/OpenMAP-T1c_multilevel_lookup_table_dictionary.csv` 记录了 **Type1 Level5** 的正式 ROI 名称及其多层级映射关系。
 - Type1 文本字典在各自子文件夹下命名为 `Type1Level1.txt` 到 `Type1Level5.txt`。
 
-# 补充信息
+# 📎 补充信息
 ![supplementary_level](../media/Multilevel.png)
 OpenMAP-T1 将全脑划分为五级层次结构，最粗级别为 8 个结构，最细级别为 280 个结构。
 
@@ -353,7 +354,7 @@ OpenMAP-T1 将全脑划分为五级层次结构，最粗级别为 8 个结构，
 
 * 也可使用 [ROIEditor](https://www.mristudio.org/installation.html)。ROIEditor 是专为医学影像 ROI 创建与编辑设计的免费开源应用，界面友好，便于在 OpenMAP-T1 分区图上分离和分析特定区域。
 
-# 常见问题（FAQ）
+# ❓ 常见问题（FAQ）
 * **OpenMAP-T1 的主要贡献是什么？**<br>
 使用 GPU 时，OpenMAP-T1 可在约 1–2 分钟内处理一张 T1 加权图像；即使使用 CPU，约 30 分钟即可完成。此外，OpenMAP-T1 对成像环境差异和脑萎缩具有较高鲁棒性。
 
@@ -367,7 +368,7 @@ OpenMAP-T1 采用 JHU 图谱。
 我们的实验在 24 GB 显存的 NVIDIA RTX3090 上进行。推理所需显存更少，但由于利用 CNN 的全卷积特性，实际需求取决于图像大小。典型图像可在 4 GB 以下显存运行。若出现显存不足，请检查：1）体素间距是否正确；2）MRI 是否仅包含头部区域。
 
 * **OpenMAP-T1 是否支持 MacBook 的 Apple Silicon（MPS）？**<br>
-支持。OpenMAP-T1 在 Apple Silicon Mac（M1/M2/M3/M4）上支持 MPS（Metal Performance Shaders）。可用时会自动使用 MPS 加速，比纯 CPU 更快。
+支持。OpenMAP-T1 在 Apple Silicon Mac（M 系列芯片）上支持 MPS（Metal Performance Shaders）。可用时会自动使用 MPS 加速，比纯 CPU 更快。
 
 * **OpenMAP-T1 和 OpenMAP-T1c 有何区别？**<br>
 OpenMAP-T1 旨在对脑实质（尤其是白质结构）进行精细分区；而 OpenMAP-T1c 使用从 T2 加权 MRI 配准得到的标签进行训练，更加侧重于脑脊液（CSF）周边区域（如脑沟、外侧裂及蛛网膜下腔脑池等）的分割。如果您希望对 CSF 进行更加精细和准确的分割（在有 T2 加权图像的情况下），推荐使用 [OpenMAP-T2](https://github.com/OishiLab/OpenMAP-T2)。<br>
@@ -391,8 +392,11 @@ Type 1 将脑表面结构分为皮层和皮层下白质，通常用于大多数�
 * **是否提供训练代码？**<br>
 不提供。训练代码与无法公开的数据紧密相关。
 
-# 引用
-```
+# 📝 引用
+使用 OpenMAP-T1 时，请引用已发表的期刊论文（Human Brain Mapping, 2024），而不是 medRxiv 预印本。请从 **[PubMed](https://pubmed.ncbi.nlm.nih.gov/39523990/)** 获取引用信息，以确保与期刊版本一致。PubMed 的 **Cite** 按钮可提供 APA、MLA、AMA、NLM 等标准格式的引用，请选择您投稿的期刊或所在机构要求的格式。下方也提供了 BibTeX 条目。
+
+**BibTeX 格式:**
+```bibtex
 @article{nishimaki2024openmap,
   author={Nishimaki, Kei and Onda, Kengo and Ikuta, Kumpei and Chotiyanonta, Jill and Uchida, Yuto and Mori, Susumu and Iyatomi, Hitoshi and Oishi, Kenichi and Alzheimer's Disease Neuroimaging Initiative and {Australian Imaging Biomarkers and Lifestyle Flagship Study of Ageing}},
   title={OpenMAP-T1: A Rapid Deep-Learning Approach to Parcellate 280 Anatomical Regions to Cover the Whole Brain},
@@ -410,7 +414,7 @@ Type 1 将脑表面结构分为皮层和皮层下白质，通常用于大多数�
 }
 ```
 
-# 相关研究
+# 📚 相关研究
 以下研究在 T1 加权 MRI 的高级分割与分析中使用了 OpenMAP-T1。
 * **[Data-driven schizophrenia subtyping via brain atrophy trajectories and functional connectivity](https://www.nature.com/articles/s41398-026-03968-w)**  
    *作者:* Daisuke Yoshimaru, Kazuya Ouchi, Shuhei Shibukawa, Masakazu Ozawa, Motoki Hirabayashi, Ami Yuzawa, Tomokazu Tsurugizawa, Kenichi Oishi, Hirotaka James Okano;  
@@ -424,3 +428,9 @@ Type 1 将脑表面结构分为皮层和皮层下白质，通常用于大多数�
 * **[A Neural Network Approach to Identify Left–Right Orientation of Anatomical Brain MRI](https://pmc.ncbi.nlm.nih.gov/articles/PMC11808181/)**  
    *作者:* Kei Nishimaki; Hitoshi Iyatomi, PhD; Kenichi Oishi, MD, PhD;  
    *期刊:* Brain and Behavior
+* **[Preserved Limbic White Matter Predicts Favorable 2-Year Outcomes in Neonatal Hypoxic-Ischemic Encephalopathy](https://doi.org/10.1002/cns3.70047)**  
+   *作者:* Xingyu Chen, Shuhei Tomoshige, Ria Wright, Vera J Burton, Gwendolyn Gerner, Nathanael Kuo, Jill S Chotiyanonta, Raul Chavez-Valdez, Ernest M Graham, Frances J Northington, Kenichi Oishi;  
+   *期刊:* Annals of the Child Neurology Society
+* **[Utilizing routinely acquired clinical neuroimaging and electronic health record data to advance precision medicine in dementia care](https://doi.org/10.1080/09540261.2026.2714142)**  
+   *作者:* Kenichi Oishi, Roy Adams, Milap A Nowrangi, Peter P Zandi, Constantine G Lyketsos;  
+   *期刊:* International Review of Psychiatry

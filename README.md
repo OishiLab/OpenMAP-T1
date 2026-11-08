@@ -14,6 +14,7 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1fmfkxxZjChExnl5cHITYkNYgTu3MZ7Ql#scrollTo=xwZxyL5ewVNF)
 ![Python 3.12+](https://img.shields.io/badge/Python-3.12+-brightgreen.svg)
 [![HuggingFace Application](https://img.shields.io/badge/HuggingFace-Application-orange.svg)](https://huggingface.co/spaces/OishiLab/OpenMAP-T1)
+![OpenMAP series: T1](https://img.shields.io/badge/OpenMAP%20series-T1%20%7C%20T1c-blue.svg)
 
 [![Thank you — 50 GitHub stars](https://img.shields.io/badge/thank%20you!-50%20GitHub%20stars-D5312A?style=for-the-badge&logo=github&logoColor=white)](https://github.com/OishiLab/OpenMAP-T1)
 
@@ -30,18 +31,18 @@ Paper: https://onlinelibrary.wiley.com/doi/full/10.1002/hbm.70063<br>
 Cloud Application: https://huggingface.co/spaces/OishiLab/OpenMAP-T1<br>
 Published in **Human Brain Mapping**<br>
 
-## OpenMAP series
+## 🧠 OpenMAP series
 OpenMAP is a family of deep-learning models that parcellate the whole brain into 280 anatomical regions.
 
 - **OpenMAP-T1** and **OpenMAP-T1c** are both included in this repository and take a T1-weighted MRI. OpenMAP-T1 is aimed at detailed parcellation of the brain parenchyma, especially white matter. OpenMAP-T1c is trained on labels registered from T2-weighted MRI and pays more attention to CSF around the cortical sulci, Sylvian fissures, and subarachnoid cisterns.
 - For finer CSF segmentation from a T2-weighted MRI, use **[OpenMAP-T2](https://github.com/OishiLab/OpenMAP-T2)**.
 
-## Requirements
+## 📋 Requirements
 - **Python 3.12 or later** (required by scipy 1.18). The Docker image uses Python 3.14.8, the newest release that still has PyTorch wheels.
 - **PyTorch 2.14 or later** (installed automatically with `uv sync`; install separately when using pip)
 - Other pinned libraries: nibabel 5.4.2, pandas 3.0.6, scipy 1.18.1, SimpleITK 2.5.6, tqdm 4.70.1
 
-# Installation
+# 📦 Installation
 **OpenMAP-T1 parcellates the whole brain into 280 anatomical regions based on JHU-atlas in 50 (sec/case).**
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1fmfkxxZjChExnl5cHITYkNYgTu3MZ7Ql#scrollTo=xwZxyL5ewVNF)
@@ -60,7 +61,7 @@ OpenMAP is a family of deep-learning models that parcellate the whole brain into
 
    **Windows:**
    ```powershell
-   powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+   powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
    ```
 
    Or using pip:
@@ -112,7 +113,7 @@ pip install -r requirements.txt
 
 5. You can run OpenMAP-T1!
 
-# Docker Installation Instruction
+# 🐳 Docker Installation Instruction
 The Docker image is based on `python:3.14.8-slim` and installs dependencies from `requirements_for_docker.txt`, which is exported from `uv.lock`. To regenerate it after dependency updates, run:
 ```
 uv export --no-hashes --no-emit-project --no-dev -o requirements_for_docker.txt
@@ -156,13 +157,13 @@ These are the command-line arguments passed to the application running inside th
 
   Replace `INPUT_FOLDER`, `OUTPUT_FOLDER`, and `MODEL_FOLDER` with the appropriate directory names or paths that exist within the mounted `/app` directory (for example, `input`, `output`, and `model`).
 
-# How to download the pretrained model.
+# ⬇️ How to download the pretrained model.
 You can get the pretrained model from this link.
 [Link of pretrained model](https://forms.office.com/Pages/ResponsePage.aspx?id=OPSkn-axO0eAP4b4rt8N7Iz6VabmlEBIhG4j3FiMk75UQUxBMkVPTzlIQTQ1UEZJSFY1NURDNzRERC4u)
 
 ![image](media/Download_pretrained.png)
 
-# All Commands
+# 💻 All Commands
 Using OpenMAP-T1 is straightforward. You can use it in a terminal on Linux, macOS, or Windows. We provide CPU as well as GPU support. Running on GPU is a lot faster though and should always be preferred. Here is a minimal example of how you can use OpenMAP-T1.
 
 ## Basic Usage
@@ -254,7 +255,7 @@ python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --o
 docker run --rm -it -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-skull-stripping
 ```
 
-## Using GPU
+## ⚡ Using GPU
 OpenMAP-T1 selects CUDA automatically when a GPU is available (`Using device: cuda` at startup). GPU execution is much faster than CPU and is recommended whenever possible. Each run uses a single GPU.
 
 On **Linux or Windows (WSL2) with an NVIDIA GPU**, install the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) before using GPU inside Docker. Without `--gpus`, the container typically falls back to CPU even on a GPU host.
@@ -357,13 +358,13 @@ All runtime console messages (stdout, stderr, and progress logs) are automatical
 
 If any case fails, is skipped by a short-circuit flag, or yields a clearly abnormal total brain volume (default: &lt; 10,000 mm³ on the 1 mm isotropic grid), it is listed in `failed_cases.csv` at the root of `OUTPUT_FOLDER`. Columns: `case_id`, `input_path`, `status` (`failed`, `skipped`, or `low_volume`), `reason`, and `total_brain_volume_mm3`.
 
-## Level Metadata (JHU-Atlas)
+## 🗺️ Level Metadata (JHU-Atlas)
 The [`level/`](level/) folder contains lookup tables and hierarchy definitions related to the JHU-atlas-based parcellation, organized into `level/OpenMAP-T1/` (standard OpenMAP-T1) and `level/OpenMAP-T1c/` (OpenMAP-T1c with internal/external sulcal CSF and subarachnoid cistern definitions).
 
 - `level/OpenMAP-T1/OpenMAP-T1_multilevel_lookup_table_dictionary.csv` and `level/OpenMAP-T1c/OpenMAP-T1c_multilevel_lookup_table_dictionary.csv` include the official ROI names for **Type1 Level5** and their corresponding multilevel mappings.
 - Type1 text dictionaries are named `Type1Level1.txt` to `Type1Level5.txt` inside each subfolder (`level/OpenMAP-T1/` and `level/OpenMAP-T1c/`).
 
-# Supplementary information
+# 📎 Supplementary information
 ![supplementary_level](media/Multilevel.png)
 The OpenMAP-T1 parcellates the entire brain into five hierarchical structural levels, with the coarsest level comprising eight structures and the finest level comprising 280 structures.
 
@@ -372,7 +373,7 @@ The OpenMAP-T1 parcellates the entire brain into five hierarchical structural le
 *  For additional visualization and detailed analysis, [ROIEditor](https://www.mristudio.org/installation.html) is also an excellent tool. ROIEditor is a free, open-source application specifically designed for creating and editing regions of interest (ROIs) in medical imaging. Its user-friendly interface facilitates precise segmentation and fine-tuning, making it ideal for isolating and analyzing specific regions on parcellation maps generated by OpenMAP-T1.
 
 
-# FAQ
+# ❓ FAQ
 * **What are the contributions of OpenMAP-T1?**<br>
 For GPUs, OpenMAP-T1 processes T1-weighted images in just 1–2 minutes. Even on CPUs, processing completes in roughly 30 minutes. Moreover, OpenMAP-T1 is highly robust against variations in imaging environments and brain atrophy.
 
@@ -386,7 +387,7 @@ Although not included in the paper, our private tests indicate that OpenMAP-T1 c
 We ran all our experiments on NVIDIA RTX3090 GPUs with 24 GB memory. For inference you will need less, but since inference is implemented by exploiting the fully convolutional nature of CNNs the amount of memory required depends on your image. A typical image should run with less than 4 GB of GPU memory consumption. If you run into out of memory problems please check the following: 1) Make sure the voxel spacing of your data is correct and 2) Ensure your MRI image only contains the head region.
 
 * **Can OpenMAP-T1 use Apple Silicon (MPS) on MacBook?**<br>
-Yes. OpenMAP-T1 supports MPS (Metal Performance Shaders) on Apple Silicon Macs (M1/M2/M3/M4). When running on a MacBook with Apple Silicon, it automatically uses MPS for GPU acceleration if available, which is faster than CPU-only execution.
+Yes. OpenMAP-T1 supports MPS (Metal Performance Shaders) on Apple Silicon Macs (M-series chips). When running on a MacBook with Apple Silicon, it automatically uses MPS for GPU acceleration if available, which is faster than CPU-only execution.
 
 * **What is the difference between OpenMAP-T1 and OpenMAP-T1c?**<br>
 OpenMAP-T1 is designed for detailed parcellation of the brain parenchyma, with a particular focus on white matter structures. In contrast, OpenMAP-T1c is trained using labels registered from T2-weighted MRI, placing greater emphasis on the segmentation of perivascular and subarachnoid CSF spaces (such as cortical sulci, Sylvian fissures, and subarachnoid cisterns). If you want even more detailed and accurate CSF segmentation (when T2-weighted MRI is available), we recommend using [OpenMAP-T2](https://github.com/OishiLab/OpenMAP-T2).<br>
@@ -410,8 +411,11 @@ At the end of a batch run, OpenMAP-T1 writes `failed_cases.csv` under `OUTPUT_FO
 * **Will you provide the training code as well?**<br>
 No. The training code is tightly wound around the data which we cannot make public.
 
-# Citation
-```
+# 📝 Citation
+If you use OpenMAP-T1, please cite the published journal article (Human Brain Mapping, 2024), not the medRxiv preprint. Please obtain the citation from **[PubMed](https://pubmed.ncbi.nlm.nih.gov/39523990/)** so that it matches the journal version. PubMed's **Cite** button provides the citation in standard styles such as APA, MLA, AMA, and NLM, so please use the one your journal or institution requires. A BibTeX entry is also provided below.
+
+**BibTeX:**
+```bibtex
 @article{nishimaki2024openmap,
   author={Nishimaki, Kei and Onda, Kengo and Ikuta, Kumpei and Chotiyanonta, Jill and Uchida, Yuto and Mori, Susumu and Iyatomi, Hitoshi and Oishi, Kenichi and Alzheimer's Disease Neuroimaging Initiative and {Australian Imaging Biomarkers and Lifestyle Flagship Study of Ageing}},
   title={OpenMAP-T1: A Rapid Deep-Learning Approach to Parcellate 280 Anatomical Regions to Cover the Whole Brain},
@@ -429,7 +433,7 @@ No. The training code is tightly wound around the data which we cannot make publ
 }
 ```
 
-# Related Research
+# 📚 Related Research
 The following studies have utilized OpenMAP-T1 for advanced segmentation and analysis in T1-weighted MRI. 
 * **[Data-driven schizophrenia subtyping via brain atrophy trajectories and functional connectivity](https://www.nature.com/articles/s41398-026-03968-w)**  
    *Authors:* Daisuke Yoshimaru, Kazuya Ouchi, Shuhei Shibukawa, Masakazu Ozawa, Motoki Hirabayashi, Ami Yuzawa, Tomokazu Tsurugizawa, Kenichi Oishi, Hirotaka James Okano;  
@@ -443,3 +447,9 @@ The following studies have utilized OpenMAP-T1 for advanced segmentation and ana
 * **[A Neural Network Approach to Identify Left–Right Orientation of Anatomical Brain MRI](https://pmc.ncbi.nlm.nih.gov/articles/PMC11808181/)**  
    *Authors:* Kei Nishimaki; Hitoshi Iyatomi, PhD; Kenichi Oishi, MD, PhD;  
    *Journal:* Brain and Behavior
+* **[Preserved Limbic White Matter Predicts Favorable 2-Year Outcomes in Neonatal Hypoxic-Ischemic Encephalopathy](https://doi.org/10.1002/cns3.70047)**  
+   *Authors:* Xingyu Chen, Shuhei Tomoshige, Ria Wright, Vera J Burton, Gwendolyn Gerner, Nathanael Kuo, Jill S Chotiyanonta, Raul Chavez-Valdez, Ernest M Graham, Frances J Northington, Kenichi Oishi;  
+   *Journal:* Annals of the Child Neurology Society
+* **[Utilizing routinely acquired clinical neuroimaging and electronic health record data to advance precision medicine in dementia care](https://doi.org/10.1080/09540261.2026.2714142)**  
+   *Authors:* Kenichi Oishi, Roy Adams, Milap A Nowrangi, Peter P Zandi, Constantine G Lyketsos;  
+   *Journal:* International Review of Psychiatry

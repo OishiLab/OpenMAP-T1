@@ -14,6 +14,7 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1fmfkxxZjChExnl5cHITYkNYgTu3MZ7Ql#scrollTo=xwZxyL5ewVNF)
 ![Python 3.12+](https://img.shields.io/badge/Python-3.12+-brightgreen.svg)
 [![HuggingFace Application](https://img.shields.io/badge/HuggingFace-Application-orange.svg)](https://huggingface.co/spaces/OishiLab/OpenMAP-T1)
+![OpenMAP series: T1](https://img.shields.io/badge/OpenMAP%20series-T1%20%7C%20T1c-blue.svg)
 
 [![GitHub — 50 stars — 感謝](https://img.shields.io/badge/GitHub-50%E2%98%85%20%E6%84%9F%E8%AC%9D!-D5312A?style=for-the-badge&logo=github&logoColor=white)](https://github.com/OishiLab/OpenMAP-T1)
 
@@ -30,18 +31,18 @@ The Richman Family Precision Medicine Center of Excellence in Alzheimer's Diseas
 クラウドアプリケーション: https://huggingface.co/spaces/OishiLab/OpenMAP-T1<br>
 **Human Brain Mapping** に掲載済み<br>
 
-## OpenMAPシリーズ
+## 🧠 OpenMAPシリーズ
 OpenMAPは、全脳を280の解剖学的領域に分割する深層学習モデルのシリーズです。
 
 - **OpenMAP-T1** と **OpenMAP-T1c** はこのリポジトリに含まれ、いずれもT1強調MRIを入力とします。OpenMAP-T1は脳実質、とくに白質の詳細な分類を目的としています。OpenMAP-T1cはT2強調画像からレジストレーションしたラベルで学習しており、脳溝・シルビウス裂・くも膜下槽などCSF周辺により注目します。
 - CSFをより詳細にセグメンテーションする場合は、T2強調MRIを入力とする **[OpenMAP-T2](https://github.com/OishiLab/OpenMAP-T2)** を利用してください。
 
-## 動作要件
+## 📋 動作要件
 - **Python 3.12 以降**（scipy 1.18 の要件）。Docker イメージは、PyTorch の wheel がある最新版である Python 3.14.8 を使います。
 - **PyTorch 2.14 以降**（`uv sync` で自動インストール。pip 利用時は別途インストール）
 - その他の固定バージョン: nibabel 5.4.2, pandas 3.0.6, scipy 1.18.1, SimpleITK 2.5.6, tqdm 4.70.1
 
-# インストール
+# 📦 インストール
 **OpenMAP-T1は、JHUアトラスに基づいて全脳を280の解剖学的領域に50秒/症例で分割します。**
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1fmfkxxZjChExnl5cHITYkNYgTu3MZ7Ql#scrollTo=xwZxyL5ewVNF)
@@ -60,7 +61,7 @@ OpenMAPは、全脳を280の解剖学的領域に分割する深層学習モデ�
 
    **Windows:**
    ```powershell
-   powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+   powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
    ```
 
    またはpipを使用：
@@ -112,7 +113,7 @@ pip install -r requirements.txt
 
 5. OpenMAP-T1を実行できます！！
 
-# Docker インストール手順
+# 🐳 Docker インストール手順
 Docker イメージは `python:3.14.8-slim` をベースとし、`uv.lock` からエクスポートした `requirements_for_docker.txt` を使用して依存関係をインストールします。依存関係を更新した場合は、次のコマンドで再生成できます：
 ```
 uv export --no-hashes --no-emit-project --no-dev -o requirements_for_docker.txt
@@ -156,13 +157,13 @@ docker run --rm -it -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER
 
   `INPUT_FOLDER`、`OUTPUT_FOLDER`、および `MODEL_FOLDER` を、マウントされた `/app` ディレクトリ内に存在する適切なディレクトリ名またはパスに置き換えてください（例: `input`、`output`、`model`）。
 
-# 事前学習済みモデルのダウンロード方法
+# ⬇️ 事前学習済みモデルのダウンロード方法
 事前学習済みモデルはこのリンクから入手できます。
 [事前学習済みモデルのリンク](https://forms.office.com/Pages/ResponsePage.aspx?id=OPSkn-axO0eAP4b4rt8N7Iz6VabmlEBIhG4j3FiMk75UQUxBMkVPTzlIQTQ1UEZJSFY1NURDNzRERC4u)
 
 ![image](../media/Download_pretrained.png)
 
-# すべてのコマンド
+# 💻 すべてのコマンド
 OpenMAP-T1の使用は簡単です。Linux、macOS、または Windows のターミナルから使用できます。CPUおよびGPUのサポートを提供しています。GPUでの実行ははるかに高速であり、常に推奨されます。以下はOpenMAP-T1の使用方法の最小限の例です。
 
 ## 基本的な使用法
@@ -254,7 +255,7 @@ python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --o
 docker run --rm -it -v "$(pwd):/app" openmap-t1 -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --only-skull-stripping
 ```
 
-## GPU の使用
+## ⚡ GPU の使用
 OpenMAP-T1 は GPU が利用可能な場合、起動時に自動的に CUDA を選択します（`Using device: cuda` と表示）。可能な限り GPU での実行を推奨します。1 回の実行で使う GPU は 1 枚です。
 
 **Linux または Windows（WSL2）+ NVIDIA GPU** で Docker 内の GPU を使うには、事前に [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) のインストールが必要です。`--gpus` を付けないと、GPU マシン上でもコンテナ内は CPU 落ちになることがあります。
@@ -357,13 +358,13 @@ MODEL_FOLDER/
 
 処理に失敗した症例、短絡フラグでスキップした症例、または全脳体積が明らかに異常に小さい症例（デフォルト: 1 mm 等方グリッド上で 10,000 mm³ 未満）は、`OUTPUT_FOLDER` 直下の `failed_cases.csv` に記録されます。列は `case_id`, `input_path`, `status`（`failed`, `skipped`, `low_volume`）, `reason`, `total_brain_volume_mm3` です。
 
-## Levelメタデータ（JHU-Atlas）
+## 🗺️ Levelメタデータ（JHU-Atlas）
 [`level/`](../level/) フォルダには、JHU-atlas ベースのパーセレーションに対応する階層定義・対応表が `level/OpenMAP-T1/`（標準 OpenMAP-T1 用）と `level/OpenMAP-T1c/`（脳溝 CSF の内外分割・くも膜下槽を含む OpenMAP-T1c 用）に分けて整理されています。
 
 - `level/OpenMAP-T1/OpenMAP-T1_multilevel_lookup_table_dictionary.csv` および `level/OpenMAP-T1c/OpenMAP-T1c_multilevel_lookup_table_dictionary.csv` には、**Type1 Level5** の正式ROI名称と、各階層レベルへの対応情報が記載されています。
 - Type1 のテキスト辞書はそれぞれのフォルダ内に `Type1Level1.txt` から `Type1Level5.txt` として格納されています。
 
-# 補足情報
+# 📎 補足情報
 ![supplementary_level](../media/Multilevel.png)
 OpenMAP-T1は、脳全体を5つの階層的な構造レベルに分割します。最も粗いレベルは8つの構造からなり、最も細かいレベルは280の構造からなります。
 
@@ -371,7 +372,7 @@ OpenMAP-T1は、脳全体を5つの階層的な構造レベルに分割します
 
 * 追加の可視化と詳細な分析のために、[ROIEditor](https://www.mristudio.org/installation.html) も優れたツールです。ROIEditorは、医療画像における関心領域（ROI）の作成と編集のために特別に設計された無料のオープンソースアプリケーションです。そのユーザーフレンドリーなインターフェースは正確なセグメンテーションと微調整を容易にし、OpenMAP-T1によって生成されたパーセレーションマップ上の特定の領域を分離して分析するのに理想的です。
 
-# FAQ
+# ❓ FAQ
 * **OpenMAP-T1の貢献は何ですか？**<br>
 GPUを使用する場合、OpenMAP-T1はT1強調画像をわずか1〜2分で処理します。CPUでも処理はおよそ30分で完了します。さらに、OpenMAP-T1は撮影環境の違いや脳萎縮に対して非常に高い堅牢性を持っています。
 
@@ -385,7 +386,7 @@ OpenMAP-T1はJHUアトラスを採用しています。
 私たちはすべての実験を24 GBメモリを搭載したNVIDIA RTX3090 GPUで行いました。推論にはそれほど必要ありませんが、推論はCNNの完全畳み込みの性質を利用して実装されているため、必要なメモリ量は画像に依存します。典型的な画像であれば、4 GB未満のGPUメモリ消費で実行できるはずです。メモリ不足の問題が発生した場合は、以下を確認してください：1）データのボクセル間隔が正しいこと、2）MRI画像に頭部領域のみが含まれていること。
 
 * **MacBookのApple Silicon（MPS）で利用できますか？**<br>
-はい。OpenMAP-T1はApple Silicon Mac（M1/M2/M3/M4）搭載のMacBookでMPS（Metal Performance Shaders）をサポートしています。Apple Silicon搭載のMacBookで実行すると、利用可能な場合は自動的にMPSによるGPUアクセラレーションが使用され、CPUのみの実行より高速に処理されます。
+はい。OpenMAP-T1はApple Silicon Mac（Mシリーズ）搭載のMacBookでMPS（Metal Performance Shaders）をサポートしています。Apple Silicon搭載のMacBookで実行すると、利用可能な場合は自動的にMPSによるGPUアクセラレーションが使用され、CPUのみの実行より高速に処理されます。
 
 * **OpenMAP-T1とOpenMAP-T1cの違いは何ですか？**<br>
 OpenMAP-T1は脳実質（特に白質構造）を中心に詳細に分類することを目的としています。一方、OpenMAP-T1cはT2強調画像からレジストレーションしたラベルを用いて学習しており、脳溝やシルビウス裂、くも膜下槽などのCSF（脳脊髄液）周辺領域により注目してセグメンテーションできるように設計されています。さらに詳細かつ高精度にCSFをセグメンテーションしたい場合（T2強調画像が利用可能な場合）は、[OpenMAP-T2](https://github.com/OishiLab/OpenMAP-T2) のご使用をお勧めします。<br>
@@ -409,8 +410,11 @@ OpenMAP-T1c モード（`t1c`）で出力されるファイルで、前頭葉・
 * **トレーニングコードも提供されますか？**<br>
 いいえ。トレーニングコードは公開できないデータと密接に関連しているためです。
 
-# 引用
-```
+# 📝 引用
+OpenMAP-T1 を利用する際は、medRxiv のプレプリントではなく、ジャーナルに掲載された論文（Human Brain Mapping, 2024）を引用してください。ジャーナル版と一致するよう、引用情報は **[PubMed](https://pubmed.ncbi.nlm.nih.gov/39523990/)** から取得してください。PubMed の **Cite** ボタンでは APA、MLA、AMA、NLM などの標準的な形式で引用文を取得できますので、投稿先のジャーナルや所属機関が求める形式を選んでください。BibTeX 形式のエントリも以下に掲載しています。
+
+**BibTeX 形式:**
+```bibtex
 @article{nishimaki2024openmap,
   author={Nishimaki, Kei and Onda, Kengo and Ikuta, Kumpei and Chotiyanonta, Jill and Uchida, Yuto and Mori, Susumu and Iyatomi, Hitoshi and Oishi, Kenichi and Alzheimer's Disease Neuroimaging Initiative and {Australian Imaging Biomarkers and Lifestyle Flagship Study of Ageing}},
   title={OpenMAP-T1: A Rapid Deep-Learning Approach to Parcellate 280 Anatomical Regions to Cover the Whole Brain},
@@ -428,7 +432,7 @@ OpenMAP-T1c モード（`t1c`）で出力されるファイルで、前頭葉・
 }
 ```
 
-# 関連研究
+# 📚 関連研究
 以下の研究では、T1強調MRIにおける高度なセグメンテーションと分析にOpenMAP-T1が利用されています。
 * **[Data-driven schizophrenia subtyping via brain atrophy trajectories and functional connectivity](https://www.nature.com/articles/s41398-026-03968-w)**  
    *著者:* Daisuke Yoshimaru, Kazuya Ouchi, Shuhei Shibukawa, Masakazu Ozawa, Motoki Hirabayashi, Ami Yuzawa, Tomokazu Tsurugizawa, Kenichi Oishi, Hirotaka James Okano;  
@@ -442,3 +446,9 @@ OpenMAP-T1c モード（`t1c`）で出力されるファイルで、前頭葉・
 * **[A Neural Network Approach to Identify Left–Right Orientation of Anatomical Brain MRI](https://pmc.ncbi.nlm.nih.gov/articles/PMC11808181/)**  
    *著者:* Kei Nishimaki; Hitoshi Iyatomi, PhD; Kenichi Oishi, MD, PhD;  
    *ジャーナル:* Brain and Behavior
+* **[Preserved Limbic White Matter Predicts Favorable 2-Year Outcomes in Neonatal Hypoxic-Ischemic Encephalopathy](https://doi.org/10.1002/cns3.70047)**  
+   *著者:* Xingyu Chen, Shuhei Tomoshige, Ria Wright, Vera J Burton, Gwendolyn Gerner, Nathanael Kuo, Jill S Chotiyanonta, Raul Chavez-Valdez, Ernest M Graham, Frances J Northington, Kenichi Oishi;  
+   *ジャーナル:* Annals of the Child Neurology Society
+* **[Utilizing routinely acquired clinical neuroimaging and electronic health record data to advance precision medicine in dementia care](https://doi.org/10.1080/09540261.2026.2714142)**  
+   *著者:* Kenichi Oishi, Roy Adams, Milap A Nowrangi, Peter P Zandi, Constantine G Lyketsos;  
+   *ジャーナル:* International Review of Psychiatry
