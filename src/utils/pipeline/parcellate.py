@@ -55,13 +55,8 @@ def parcellation(
     mode: str = "t1",
     batch_size: int = 16,
     use_amp: bool = False,
-    fp16_accum: bool = False,
 ) -> np.ndarray:
-    """Perform full 3D brain parcellation across Coronal, Sagittal, and Axial planes.
-
-    With `fp16_accum`, the 3-plane probability sum is kept in float16 (half the memory); the
-    result can differ from the float32 default at a few near-tie boundary voxels.
-    """
+    """Perform full 3D brain parcellation across Coronal, Sagittal, and Axial planes."""
     n_classes = _num_classes(pnet)
     voxel = normalize(voxel, "parcellation", mode=mode)
 
@@ -72,7 +67,7 @@ def parcellation(
     # One (n_classes, X, Y, Z) accumulator; each plane writes its probabilities straight into a
     # permuted view of it, so no per-plane full-volume tensor is allocated. The planes are summed
     # in the same order as before (coronal + sagittal + axial), so the result is unchanged.
-    acc = torch.empty((n_classes, *voxel.shape), dtype=torch.float16 if fp16_accum else torch.float32)
+    acc = torch.empty((n_classes, *voxel.shape), dtype=torch.float32)
     planes = (
         (coronal, "Coronal", (2, 0, 3, 1)),
         (sagittal, "Sagittal", (1, 0, 2, 3)),

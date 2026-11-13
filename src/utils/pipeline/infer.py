@@ -58,7 +58,7 @@ def forward_plane(
             if binary:
                 out[start:stop] = torch.sigmoid(logits)[:, 0].float().cpu()
             elif out_view is not None and accumulate:
-                out[start:stop] += torch.softmax(logits.float(), dim=1).cpu().to(out.dtype)
+                out[start:stop] += torch.softmax(logits.float(), dim=1).cpu()
             else:
                 out[start:stop] = torch.softmax(logits.float(), dim=1).cpu()
     return None if out_view is not None else out

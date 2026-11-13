@@ -200,7 +200,6 @@ python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --o
    * `both`: Write both versions; 1 mm files are saved under `conform/` with the `_1mm` suffix.
 * **--batch-size**: Number of 2.5D slices processed per forward pass. Default is `16`.
 * **--no-amp**: Disable CUDA automatic mixed precision (run CUDA inference in full precision).
-* **--fp16-accum**: Keep the sum of the three plane-wise probability maps in float16 instead of float32. This lowers peak memory by about 3 GB (about 14 GB to 11 GB in our test). Results can differ from the default at a few boundary voxels (under 0.01% of labeled voxels in our test), so leave it off when bit-exact reproducibility is required. Default is off.
 
 ## Output Space
 Inference runs on a 1 mm isotropic grid internally. By default, saved parcellation maps and intermediate masks are resampled back to the N4-corrected canonical input geometry (`native`). To keep outputs on the 1 mm grid, or to save both grids, use `--output-space`:
