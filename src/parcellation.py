@@ -85,6 +85,11 @@ def create_parser():
         help="Slices per forward pass (default: 16).",
     )
     parser.add_argument(
+        "--fp16-accum",
+        action="store_true",
+        help="Keep the 3-plane parcellation probability sum in float16 (about half the memory; may change a few boundary voxels).",
+    )
+    parser.add_argument(
         "--no-amp",
         action="store_true",
         help="Disable CUDA automatic mixed precision.",
@@ -266,6 +271,7 @@ def main():
                     mode=opt.mode,
                     batch_size=opt.batch_size,
                     use_amp=use_amp,
+                    fp16_accum=opt.fp16_accum,
                 )
 
                 # Hemisphere mask/labels to distinguish left/right brain.

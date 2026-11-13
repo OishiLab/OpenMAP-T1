@@ -9,7 +9,7 @@
 
 **语言**: [English](../README.md) | [日本語 (Japanese)](README-ja.md) | [中文 (Chinese)](README-zh.md)
 
-[![](http://img.shields.io/badge/medRxiv-10.1101/2024.01.18.24301494-B31B1B.svg)](https://www.medrxiv.org/content/10.1101/2024.01.18.24301494v1)
+[![PubMed](https://img.shields.io/badge/PubMed-39523990-326599.svg)](https://pubmed.ncbi.nlm.nih.gov/39523990/)
 [![Human Brain Mapping](https://img.shields.io/badge/Published-Human%20Brain%20Mapping-%2300629B)](https://onlinelibrary.wiley.com/doi/full/10.1002/hbm.70063)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1fmfkxxZjChExnl5cHITYkNYgTu3MZ7Ql#scrollTo=xwZxyL5ewVNF)
 ![Python 3.12+](https://img.shields.io/badge/Python-3.12+-brightgreen.svg)
@@ -95,7 +95,7 @@ cd OpenMAP-T1
 ```
 2. 安装与你环境匹配的 PyTorch: https://pytorch.org/
 
-最新稳定版 PyTorch（2.14+）需要 **Python 3.10+**；本项目因 scipy 1.18 需要 **Python 3.12+**。
+最新稳定版 PyTorch（2.15+）需要 **Python 3.11+**；本项目因 scipy 1.18 需要 **Python 3.12+**。
 
 选择环境后，页面会显示相应的安装命令。
 
@@ -182,6 +182,7 @@ python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --o
    * `both`：同时保存两种版本；1 mm 文件保存在 `conform/` 下，文件名带 `_1mm`。
 * **--batch-size**：每次前向推理处理的 2.5D 切片数，默认为 `16`。
 * **--no-amp**：禁用 CUDA 自动混合精度（AMP），以全精度运行推理。
+* **--fp16-accum**：以 float16 而非 float32 保存三个方向（冠状、矢状、轴位）概率图的累加结果。峰值内存可降低约 3 GB（测试中约从 14 GB 降至 11 GB）。结果可能与默认设置在少数边界体素上略有不同（测试中不到带标签体素的 0.01%），需要逐位复现时请勿启用。默认关闭。
 
 ## 输出空间
 推理在内部的 1 mm 等方网格上进行。默认将分区图与中间掩膜重采样回 N4 校正后的 canonical 输入几何（`native`）。若需保持 1 mm 网格或同时保存两种版本，请使用 `--output-space`：

@@ -9,7 +9,7 @@
 
 **言語**: [English](../README.md) | [日本語 (Japanese)](README-ja.md) | [中文 (Chinese)](README-zh.md)
 
-[![](http://img.shields.io/badge/medRxiv-10.1101/2024.01.18.24301494-B31B1B.svg)](https://www.medrxiv.org/content/10.1101/2024.01.18.24301494v1)
+[![PubMed](https://img.shields.io/badge/PubMed-39523990-326599.svg)](https://pubmed.ncbi.nlm.nih.gov/39523990/)
 [![Human Brain Mapping](https://img.shields.io/badge/Published-Human%20Brain%20Mapping-%2300629B)](https://onlinelibrary.wiley.com/doi/full/10.1002/hbm.70063)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1fmfkxxZjChExnl5cHITYkNYgTu3MZ7Ql#scrollTo=xwZxyL5ewVNF)
 ![Python 3.12+](https://img.shields.io/badge/Python-3.12+-brightgreen.svg)
@@ -96,7 +96,7 @@ cd OpenMAP-T1
 2. 環境に合わせてPyTorchをインストールしてください。<br>
 https://pytorch.org/
 
-最新の安定版 PyTorch（2.14 以降）は **Python 3.10 以降**が必要です。本プロジェクトは scipy 1.18 のため **Python 3.12 以降**が必要です。
+最新の安定版 PyTorch（2.15 以降）は **Python 3.11 以降**が必要です。本プロジェクトは scipy 1.18 のため **Python 3.12 以降**が必要です。
 
 環境を選択すると、必要なコマンドが表示されます。
 
@@ -200,6 +200,7 @@ python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --o
    * `both`: 両方を保存。1 mm 版は `conform/` 配下に `_1mm` 付きで出力。
 * **--batch-size**: 1回のフォワードパスで推論する2.5Dスライス枚数を指定します。デフォルトは `16` です。
 * **--no-amp**: CUDA の自動混合精度（AMP）を無効化し、フル精度で推論します。
+* **--fp16-accum**: 3 方向（冠状・矢状・軸位）の確率マップの合計を、float32 ではなく float16 で保持します。ピークメモリが約 3 GB 減ります（検証では約 14 GB から 11 GB）。デフォルトの結果と比べて、領域の境界の一部のボクセルが変わることがあります（検証ではラベル付きボクセルの 0.01% 未満）。出力を完全に再現したい場合は使用しないでください。デフォルトはオフです。
 
 ## 出力空間（Output Space）
 推論は内部で 1 mm 等方グリッド上で行われます。デフォルトでは、パーセレーション画像と中間マスクは N4 補正後の canonical 入力ジオメトリ（`native`）に戻して保存されます。1 mm グリッドのまま保存する、または両方保存する場合は `--output-space` を指定します：

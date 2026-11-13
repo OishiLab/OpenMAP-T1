@@ -35,11 +35,17 @@ def create_parcellated_images(
         "Type2_Level5",
     ]
 
+    # Remap every level with a lookup table instead of one full-volume pass per label.
+    # The table is built by running the original sequential replacement on the value
+    # domain, so the result (including chained replacements) is identical.
+    domain = np.arange(int(output.max()) + 1, dtype=np.int64)
+
     for level in all_level:
         mapping = dict(zip(df_no["Type1_Level5"], df_no[level]))
-        label = np.copy(output)
+        lut = domain.copy()
         for old, new in mapping.items():
-            label[label == old] = new
+            lut[lut == old] = new
+        label = lut.astype(output.dtype)[output]
 
         save_label_volume(
             output_dir,

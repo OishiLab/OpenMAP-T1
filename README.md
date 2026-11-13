@@ -9,7 +9,7 @@
 
 **Languages**: [English](README.md) | [日本語 (Japanese)](docs/README-ja.md) | [中文 (Chinese)](docs/README-zh.md)
 
-[![](http://img.shields.io/badge/medRxiv-10.1101/2024.01.18.24301494-B31B1B.svg)](https://www.medrxiv.org/content/10.1101/2024.01.18.24301494v1)
+[![PubMed](https://img.shields.io/badge/PubMed-39523990-326599.svg)](https://pubmed.ncbi.nlm.nih.gov/39523990/)
 [![Human Brain Mapping](https://img.shields.io/badge/Published-Human%20Brain%20Mapping-%2300629B)](https://onlinelibrary.wiley.com/doi/full/10.1002/hbm.70063)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1fmfkxxZjChExnl5cHITYkNYgTu3MZ7Ql#scrollTo=xwZxyL5ewVNF)
 ![Python 3.12+](https://img.shields.io/badge/Python-3.12+-brightgreen.svg)
@@ -96,7 +96,7 @@ cd OpenMAP-T1
 2. Install PyTorch compatible with your environment.<br>
 https://pytorch.org/
 
-The latest stable PyTorch (2.14+) requires **Python 3.10 or later**; this project requires **Python 3.12 or later** because of scipy 1.18.
+The latest stable PyTorch (2.15+) requires **Python 3.11 or later**; this project requires **Python 3.12 or later** because of scipy 1.18.
 
 Once you select your environment, the required commands will be displayed.
 
@@ -200,6 +200,7 @@ python3 src/parcellation.py -i INPUT_FOLDER -o OUTPUT_FOLDER -m MODEL_FOLDER --o
    * `both`: Write both versions; 1 mm files are saved under `conform/` with the `_1mm` suffix.
 * **--batch-size**: Number of 2.5D slices processed per forward pass. Default is `16`.
 * **--no-amp**: Disable CUDA automatic mixed precision (run CUDA inference in full precision).
+* **--fp16-accum**: Keep the sum of the three plane-wise probability maps in float16 instead of float32. This lowers peak memory by about 3 GB (about 14 GB to 11 GB in our test). Results can differ from the default at a few boundary voxels (under 0.01% of labeled voxels in our test), so leave it off when bit-exact reproducibility is required. Default is off.
 
 ## Output Space
 Inference runs on a 1 mm isotropic grid internally. By default, saved parcellation maps and intermediate masks are resampled back to the N4-corrected canonical input geometry (`native`). To keep outputs on the 1 mm grid, or to save both grids, use `--output-space`:

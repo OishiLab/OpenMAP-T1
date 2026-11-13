@@ -72,8 +72,9 @@ def make_csv(parcellation, output_dir, basename, mode: str = "t1"):
     df_Type1_level5 = (
         pd.read_table(csv_path, names=["number", "region"]).astype("str").set_index("number")
     )
+    counts = np.bincount(parcellation.ravel(), minlength=281)
     for i in range(1, 281):
-        volume = np.count_nonzero(parcellation == i)
+        volume = int(counts[i])
         df_Type1_level5.loc[str(i), basename] = volume
 
     df_Type1_level5 = df_Type1_level5.set_index("region").T.reset_index(drop=True)
