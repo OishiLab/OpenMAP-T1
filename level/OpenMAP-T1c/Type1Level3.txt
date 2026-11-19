@@ -54,5 +54,4 @@
 54	TempSul_L
 55	TempSul_R
 56	IV_ventricle
-57	Subarachnoid_Cisterns_L
-58	Subarachnoid_Cisterns_R
+57	Subarachnoid_Cisterns

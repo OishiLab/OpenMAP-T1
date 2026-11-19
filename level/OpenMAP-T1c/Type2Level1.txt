@@ -1,0 +1,5 @@
+1	Hemisphere_L
+2	Hemisphere_R
+3	Brainstem
+4	Cerebellum
+5	CSF

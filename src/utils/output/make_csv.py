@@ -38,10 +38,23 @@ def change_level(df, level="Type1_Level1", sulcus=True, mode: str = "t1"):
     for key, value in data.items():
         level_dict[str(value)].append(key)
 
+    # Name each output column from the regions that share its number, never by position.
+    # (Pairing the n-th group with the n-th unique name shifts every later column as soon as
+    # the number file merges regions that the name file keeps separate.)
+    names_by_number = defaultdict(list)
+    for number, name in zip(ROI_number[level], ROI_name[level]):
+        if name not in names_by_number[str(number)]:
+            names_by_number[str(number)].append(name)
+    conflicts = {n: names for n, names in names_by_number.items() if len(names) > 1}
+    if conflicts:
+        raise ValueError(
+            f"{level}: regions with the same number have different names in Level_ROI_Name.csv: {conflicts}"
+        )
+
     change_df_list = []
-    for i, (_key, value) in enumerate(level_dict.items()):
-        name = ROI_name[level].unique()[i]
-        change_df_list.append(df[value].sum(axis=1).rename(name))
+    for number, members in level_dict.items():
+        name = names_by_number[number][0]
+        change_df_list.append(df[members].sum(axis=1).rename(name))
 
     return pd.concat(change_df_list, axis=1)
 

@@ -363,6 +363,8 @@ The [`level/`](level/) folder contains lookup tables and hierarchy definitions r
 
 - `level/OpenMAP-T1/OpenMAP-T1_multilevel_lookup_table_dictionary.csv` and `level/OpenMAP-T1c/OpenMAP-T1c_multilevel_lookup_table_dictionary.csv` include the official ROI names for **Type1 Level5** and their corresponding multilevel mappings.
 - Type1 text dictionaries are named `Type1Level1.txt` to `Type1Level5.txt` inside each subfolder (`level/OpenMAP-T1/` and `level/OpenMAP-T1c/`).
+- Type2 text dictionaries are named `Type2Level1.txt` to `Type2Level5.txt` in the same subfolders. Each line is `number<TAB>name`, matching the label values in the parcellated images and the column order of the CSV files.
+- In OpenMAP-T1c, Type2 Level5 merges the external and internal sulcal CSF of each frontal, central, and parietal sulcus into one label, and the Level3 mappings merge the left and right subarachnoid cisterns.
 
 # 📎 Supplementary information
 ![supplementary_level](media/Multilevel.png)

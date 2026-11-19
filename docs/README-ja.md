@@ -363,6 +363,8 @@ MODEL_FOLDER/
 
 - `level/OpenMAP-T1/OpenMAP-T1_multilevel_lookup_table_dictionary.csv` および `level/OpenMAP-T1c/OpenMAP-T1c_multilevel_lookup_table_dictionary.csv` には、**Type1 Level5** の正式ROI名称と、各階層レベルへの対応情報が記載されています。
 - Type1 のテキスト辞書はそれぞれのフォルダ内に `Type1Level1.txt` から `Type1Level5.txt` として格納されています。
+- Type2 のテキスト辞書は、同じフォルダ内に `Type2Level1.txt` から `Type2Level5.txt` として格納されています。各行は `番号<TAB>名前` で、パーセレーション画像のラベル値と、CSV ファイルの列の並びに対応します。
+- OpenMAP-T1c では、Type2 Level5 は、前頭溝・中心溝・頭頂溝それぞれの外側と内側の脳溝 CSF を 1 つのラベルにまとめます。また、Level3 の対応では、左右のくも膜下槽をまとめます。
 
 # 📎 補足情報
 ![supplementary_level](../media/Multilevel.png)

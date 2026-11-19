@@ -345,6 +345,8 @@ MODEL_FOLDER/
 
 - `level/OpenMAP-T1/OpenMAP-T1_multilevel_lookup_table_dictionary.csv` 与 `level/OpenMAP-T1c/OpenMAP-T1c_multilevel_lookup_table_dictionary.csv` 记录了 **Type1 Level5** 的正式 ROI 名称及其多层级映射关系。
 - Type1 文本字典在各自子文件夹下命名为 `Type1Level1.txt` 到 `Type1Level5.txt`。
+- Type2 文本字典在相同的子文件夹下命名为 `Type2Level1.txt` 到 `Type2Level5.txt`。每行格式为 `编号<TAB>名称`，与分区图像中的标签值以及 CSV 文件的列顺序一一对应。
+- 在 OpenMAP-T1c 中，Type2 Level5 将额状沟、中央沟和顶沟各自的外侧与内侧脑沟 CSF 合并为一个标签；Level3 的对应关系则将左右蛛网膜下腔池合并。
 
 # 📎 补充信息
 ![supplementary_level](../media/Multilevel.png)
